@@ -22,8 +22,6 @@ header {
   justify-content: space-between;
   align-items: center;
   border-bottom: 2px solid $color-primary;
-  border-bottom-left-radius: 20px;
-  border-bottom-right-radius: 20px;
   .logo {
     width: 60px;
     height: 60px;
