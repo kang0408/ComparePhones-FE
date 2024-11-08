@@ -11,8 +11,7 @@ import {
   NPagination,
   NImage
 } from 'naive-ui';
-import { h, ref, computed } from 'vue';
-import { process } from 'dotenv';
+import { h, ref, computed, reactive } from 'vue';
 
 import DetailPhone from '@/components/DetailPhone.vue';
 import EditPhone from '@/components/EditPhone.vue';
@@ -35,39 +34,59 @@ const brandList = ref();
 phoneList.value = phoneStore.getAllPhone();
 brandList.value = phoneStore.getAllBrand();
 
-const searchValue = ref('');
-// Lọc và tìm kiếm
-const filteredData = computed(() => {
-  const query = searchValue.value.toLowerCase();
-  if (!query) {
-    return phoneList.value;
-  } else {
-    return phoneList.value.filter((phone) => phone.name.toLowerCase().includes(query));
+// // Lọc và tìm kiếm
+// const filteredData = computed(() => {
+//   const query = searchValue.value.toLowerCase();
+//   if (!query) {
+//     return phoneList.value;
+//   } else {
+//     return phoneList.value.filter((phone) => phone.name.toLowerCase().includes(query));
+//   }
+// });
+
+// const filteredDataLength = computed(() => filteredData.value.length);
+// // Phân trang
+// const currentPage = ref(1);
+// const pageSize = ref(5);
+// const pageSlot = ref(7);
+// const pageCount = computed(() => Math.ceil(filteredDataLength.value / pageSize.value));
+
+// const paginatedData = computed(() => {
+//   const start = (currentPage.value - 1) * pageSize.value;
+//   const end = start + pageSize.value;
+
+//   return filteredData.value.slice(start, end);
+// });
+
+// const handlePageChange = (page) => {
+//   currentPage.value = page;
+// };
+
+const paginationReactive = reactive({
+  page: 1,
+  pageSize: 5,
+  showSizePicker: true,
+  pageSizes: [3, 5, 7],
+  onChange: (page) => {
+    paginationReactive.page = page;
+  },
+  onUpdatePageSize: (pageSize) => {
+    paginationReactive.pageSize = pageSize;
+    paginationReactive.page = 1;
   }
 });
-
-const filteredDataLength = computed(() => filteredData.value.length);
-// Phân trang
-const currentPage = ref(1);
-const pageSize = ref(5);
-const pageSlot = ref(7);
-const pageCount = computed(() => Math.ceil(filteredDataLength.value / pageSize.value));
-
-const paginatedData = computed(() => {
-  const start = (currentPage.value - 1) * pageSize.value;
-  const end = start + pageSize.value;
-
-  return filteredData.value.slice(start, end);
-});
-
-const handlePageChange = (page) => {
-  currentPage.value = page;
-};
 
 const phoneColumns = [
   {
     type: 'selection',
     options: ['all', 'none']
+  },
+  {
+    title: 'Order',
+    key: 'order',
+    render: (_, index) => {
+      return index + 1;
+    }
   },
   {
     title: 'Name',
@@ -159,6 +178,10 @@ const phoneColumns = [
   }
 ];
 
+const rowKey = computed((row) => {
+  return row.name;
+});
+
 const detailPhone = ref({});
 const showDetailPhone = ref(false);
 const viewInforPhone = (row) => {
@@ -172,9 +195,17 @@ const editPhone = (row) => {
   detailPhone.value = phoneStore.getDetailPhone(row.id);
 };
 
+const closeEditPhoneHandler = () => {
+  showEditPhone.value = false;
+};
+
 const showAddPhone = ref(false);
 const showPhone = () => {
   showAddPhone.value = true;
+};
+
+const closeAddPhoneHandler = () => {
+  showAddPhone.value = false;
 };
 
 const deletePhoneHandler = () => {
@@ -192,27 +223,18 @@ const deletePhoneHandler = () => {
   });
 };
 
+const searchValue = ref('');
+const filteredData = computed(() => {
+  const query = searchValue.value.toLowerCase();
+  if (!query) {
+    return phoneList.value;
+  } else {
+    return phoneList.value.filter((phone) => phone.name.toLowerCase().includes(query));
+  }
+});
 // const searchPhoneByNameHandler = () => {
-//   if (searchValue.value === '') {
-//     message.info('Please enter your search!');
-//   } else {
-//     phoneList.value = phoneList.value.filter((phone) =>
-//       phone.name.toLowerCase().includes(searchValue.value)
-//     );
-//   }
+
 // };
-
-// const resetPhoneListHandler = () => {
-//   phoneList.value = phoneStore.getAllPhone();
-// };
-
-const closeEditPhoneHandler = () => {
-  showEditPhone.value = false;
-};
-
-const closeAddPhoneHandler = () => {
-  showAddPhone.value = false;
-};
 </script>
 
 <template>
@@ -226,8 +248,6 @@ const closeAddPhoneHandler = () => {
           placeholder="Search by name here..."
           style="width: 400px; margin-bottom: 16px; margin-right: 16px"
         />
-        <!-- <n-button @click="searchPhoneByNameHandler">Search</n-button>
-      <n-button @click="resetPhoneListHandler">🔃</n-button> -->
         <n-button>Delete phone</n-button>
       </n-input-group>
       <n-button @click="showPhone">Add phone</n-button>
@@ -236,9 +256,11 @@ const closeAddPhoneHandler = () => {
       v-model:checked-row-keys="checkedRowKeysRef"
       size="large"
       :columns="phoneColumns"
-      :data="paginatedData"
+      :data="filteredData"
+      :pagination="paginationReactive"
+      striped
     />
-    <div class="phone-pagination">
+    <!-- <div class="phone-pagination">
       <n-pagination
         v-model:page="currentPage"
         :page-count="pageCount"
@@ -246,7 +268,7 @@ const closeAddPhoneHandler = () => {
         show-quick-jumper
         @update:page="handlePageChange"
       />
-    </div>
+    </div> -->
   </div>
   <n-modal v-model:show="showDetailPhone" style="margin-top: 50px; margin-bottom: 50px">
     <n-card style="width: 800px" :bordered="true" size="huge" role="dialog" aria-modal="true">
