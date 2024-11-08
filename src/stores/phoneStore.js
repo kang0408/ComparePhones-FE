@@ -30,7 +30,11 @@ export const usePhoneStore = defineStore('phone', {
         newBrand.label = phone.brand;
         newBrand.value = phone.brand;
 
-        this.allBrands.push(newBrand);
+        if (this.allBrands.length === 0) this.allBrands.push(newBrand);
+        else {
+          const hasBrand = this.allBrands.some((brand) => brand.value === newBrand.value);
+          if (!hasBrand) this.allBrands.push(newBrand);
+        }
       });
 
       return this.allBrands;

@@ -8,13 +8,15 @@ import {
   NCard,
   NInput,
   NInputGroup,
-  NPagination
+  NPagination,
+  NImage
 } from 'naive-ui';
 import { h, ref, computed } from 'vue';
 import { process } from 'dotenv';
 
 import DetailPhone from '@/components/DetailPhone.vue';
 import EditPhone from '@/components/EditPhone.vue';
+import AddPhone from '@/components/AddNewPhone.vue';
 
 import { usePhoneStore } from '@/stores/phoneStore';
 
@@ -77,7 +79,7 @@ const phoneColumns = [
     key: 'image',
     render(value) {
       return h('div', { class: 'phone-image-wrap' }, [
-        h('img', {
+        h(NImage, {
           src: `${import.meta.env.VITE_CELLPHONES_URL}/${value.image}`,
           class: 'phone-image'
         })
@@ -89,7 +91,7 @@ const phoneColumns = [
     key: 'brand',
     sorter: 'default',
     filterOptions: brandList.value,
-    filter(value) {
+    filter(value, row) {
       return !!~row.brand.indexOf(value.toString());
     }
   },
@@ -170,6 +172,11 @@ const editPhone = (row) => {
   detailPhone.value = phoneStore.getDetailPhone(row.id);
 };
 
+const showAddPhone = ref(false);
+const showPhone = () => {
+  showAddPhone.value = true;
+};
+
 const deletePhoneHandler = () => {
   dialog.warning({
     title: 'Delete phone',
@@ -198,21 +205,33 @@ const deletePhoneHandler = () => {
 // const resetPhoneListHandler = () => {
 //   phoneList.value = phoneStore.getAllPhone();
 // };
+
+const closeEditPhoneHandler = () => {
+  showEditPhone.value = false;
+};
+
+const closeAddPhoneHandler = () => {
+  showAddPhone.value = false;
+};
 </script>
 
 <template>
   <p class="title">Danh sách điện thoại</p>
   <div class="phone-list-wrap">
-    <n-input-group>
-      <n-input
-        v-model:value="searchValue"
-        type="text"
-        placeholder="Search by name here..."
-        style="width: 400px; margin-bottom: 16px; margin-right: 16px"
-      />
-      <!-- <n-button @click="searchPhoneByNameHandler">Search</n-button>
+    <div class="phone-list-header">
+      <n-input-group>
+        <n-input
+          v-model:value="searchValue"
+          type="text"
+          placeholder="Search by name here..."
+          style="width: 400px; margin-bottom: 16px; margin-right: 16px"
+        />
+        <!-- <n-button @click="searchPhoneByNameHandler">Search</n-button>
       <n-button @click="resetPhoneListHandler">🔃</n-button> -->
-    </n-input-group>
+        <n-button>Delete phone</n-button>
+      </n-input-group>
+      <n-button @click="showPhone">Add phone</n-button>
+    </div>
     <n-data-table
       v-model:checked-row-keys="checkedRowKeysRef"
       size="large"
@@ -231,18 +250,17 @@ const deletePhoneHandler = () => {
   </div>
   <n-modal v-model:show="showDetailPhone" style="margin-top: 50px; margin-bottom: 50px">
     <n-card style="width: 800px" :bordered="true" size="huge" role="dialog" aria-modal="true">
-      <template #header-extra>
-        <span style="cursor: pointer" @click="showDetailPhone = false">X</span>
-      </template>
       <DetailPhone :detail-phone="detailPhone" />
     </n-card>
   </n-modal>
   <n-modal v-model:show="showEditPhone" style="margin-top: 50px; margin-bottom: 50px">
     <n-card style="width: 90%" :bordered="true" size="huge" role="dialog" aria-modal="true">
-      <template #header-extra>
-        <span style="cursor: pointer" @click="showDetailPhone = false">X</span>
-      </template>
-      <EditPhone :detail-phone="detailPhone" />
+      <EditPhone :detail-phone="detailPhone" @close-edit-phone="closeEditPhoneHandler" />
+    </n-card>
+  </n-modal>
+  <n-modal v-model:show="showAddPhone" style="margin-top: 50px; margin-bottom: 50px">
+    <n-card style="width: 90%" :bordered="true" size="huge" role="dialog" aria-modal="true">
+      <AddPhone @close-add-phone="closeAddPhoneHandler" />
     </n-card>
   </n-modal>
 </template>
@@ -265,6 +283,9 @@ const deletePhoneHandler = () => {
     height: 100%;
     object-fit: cover;
   }
+}
+.phone-list-header {
+  display: flex;
 }
 .phone-pagination {
   display: flex;
