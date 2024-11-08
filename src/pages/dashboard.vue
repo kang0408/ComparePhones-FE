@@ -26,7 +26,6 @@ import eyeIcon from '@assets/icons/eye.svg';
 const dialog = useDialog();
 const message = useMessage();
 const phoneStore = usePhoneStore();
-const checkedRowKeysRef = ref([]);
 
 const phoneList = ref();
 const brandList = ref();
@@ -141,12 +140,14 @@ const phoneColumns = [
   {
     title: 'Action',
     key: 'action',
+    width: '200px',
     render(row) {
       return h('div', [
         h(
           NButton,
           {
-            onClick: () => viewInforPhone(row)
+            onClick: () => viewInforPhone(row),
+            type: 'primary'
           },
           {
             icon: () => h('img', { title: 'Phone Infor', src: eyeIcon, alt: 'Edit', class: 'icon' })
@@ -156,7 +157,8 @@ const phoneColumns = [
           NButton,
           {
             onClick: () => editPhone(row),
-            style: { marginLeft: '8px' }
+            style: { marginLeft: '8px' },
+            type: 'warning'
           },
           {
             icon: () => h('img', { title: 'Edit Phone', src: editIcon, alt: 'Edit', class: 'icon' })
@@ -166,7 +168,8 @@ const phoneColumns = [
           NButton,
           {
             onClick: () => deletePhoneHandler(row),
-            style: { marginLeft: '8px' }
+            style: { marginLeft: '8px' },
+            type: 'error'
           },
           {
             default: () =>
@@ -178,9 +181,15 @@ const phoneColumns = [
   }
 ];
 
-const rowKey = computed((row) => {
-  return row.name;
-});
+const checkedRowKeysRef = ref([]);
+
+const rowKey = (row) => {
+  return row.id;
+};
+
+const handleCheck = (rowKeys) => {
+  checkedRowKeysRef.value = rowKeys;
+};
 
 const detailPhone = ref({});
 const showDetailPhone = ref(false);
@@ -232,9 +241,24 @@ const filteredData = computed(() => {
     return phoneList.value.filter((phone) => phone.name.toLowerCase().includes(query));
   }
 });
-// const searchPhoneByNameHandler = () => {
 
-// };
+const deleteManyPhoneHandler = () => {
+  if (checkedRowKeysRef.value.length == 0) message.info('Please select one phone to delete!');
+  else {
+    dialog.warning({
+      title: 'Delete phones',
+      content: `Do you want to delete this phones?`,
+      positiveText: 'Yes',
+      negativeText: 'Cancel',
+      onPositiveClick: async () => {
+        message.success('Delete phones successfully');
+      },
+      onNegativeClick: () => {
+        message.info('Cancel delete phones');
+      }
+    });
+  }
+};
 </script>
 
 <template>
@@ -248,9 +272,9 @@ const filteredData = computed(() => {
           placeholder="Search by name here..."
           style="width: 400px; margin-bottom: 16px; margin-right: 16px"
         />
-        <n-button>Delete phone</n-button>
+        <n-button @click="deleteManyPhoneHandler" type="error">Delete phone</n-button>
       </n-input-group>
-      <n-button @click="showPhone">Add phone</n-button>
+      <n-button @click="showPhone" type="primary">Add phone</n-button>
     </div>
     <n-data-table
       v-model:checked-row-keys="checkedRowKeysRef"
@@ -258,17 +282,10 @@ const filteredData = computed(() => {
       :columns="phoneColumns"
       :data="filteredData"
       :pagination="paginationReactive"
+      :row-key="rowKey"
+      @update:checked-row-keys="handleCheck"
       striped
     />
-    <!-- <div class="phone-pagination">
-      <n-pagination
-        v-model:page="currentPage"
-        :page-count="pageCount"
-        :page-slot="pageSlot"
-        show-quick-jumper
-        @update:page="handlePageChange"
-      />
-    </div> -->
   </div>
   <n-modal v-model:show="showDetailPhone" style="margin-top: 50px; margin-bottom: 50px">
     <n-card style="width: 800px" :bordered="true" size="huge" role="dialog" aria-modal="true">
