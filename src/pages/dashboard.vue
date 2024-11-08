@@ -11,6 +11,7 @@ import {
   NPagination
 } from 'naive-ui';
 import { h, ref, computed } from 'vue';
+import { process } from 'dotenv';
 
 import DetailPhone from '@/components/DetailPhone.vue';
 import EditPhone from '@/components/EditPhone.vue';
@@ -77,7 +78,7 @@ const phoneColumns = [
     render(value) {
       return h('div', { class: 'phone-image-wrap' }, [
         h('img', {
-          src: `${process.env.VITE_CELLPHONES_URL}/${value.image}`,
+          src: `${import.meta.env.VITE_CELLPHONES_URL}/${value.image}`,
           class: 'phone-image'
         })
       ]);
