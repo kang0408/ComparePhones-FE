@@ -8,7 +8,7 @@ const props = defineProps({
   detailPhone: {}
 });
 
-const phoneImg = `${import.meta.env.VITE_CELLPHONES_URL}/${props.detailPhone.img}`;
+const phoneImg = `${process.env.VITE_CELLPHONES_URL}/${props.detailPhone.img}`;
 </script>
 
 <template>

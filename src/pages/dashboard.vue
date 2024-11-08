@@ -77,7 +77,7 @@ const phoneColumns = [
     render(value) {
       return h('div', { class: 'phone-image-wrap' }, [
         h('img', {
-          src: `${import.meta.env.VITE_CELLPHONES_URL}/${value.image}`,
+          src: `${process.env.VITE_CELLPHONES_URL}/${value.image}`,
           class: 'phone-image'
         })
       ]);
