@@ -1,31 +1,38 @@
 import { defineStore } from 'pinia';
 import phoneList from './phoneList';
+import { api } from '@api/axios';
 
 export const usePhoneStore = defineStore('phone', {
   state: () => ({
+    pagination: {},
     allPhones: [],
     allBrands: [],
     detailPhone: {}
   }),
   actions: {
-    getAllPhone() {
-      phoneList.forEach((phone) => {
-        const newPhone = {};
-        newPhone.id = phone.id;
-        newPhone.name = phone.name;
-        newPhone.image = phone.img;
-        newPhone.brand = phone.brand;
-        newPhone.cost = phone.cost;
+    async getPhone() {
+      try {
+        const response = await api.get('/phone');
 
-        this.allPhones.push(newPhone);
-      });
+        this.allPhones = response.data.data;
+        this.pagination = response.data.data.meta;
+      } catch (error) {
+        return error;
+      }
       return this.allPhones;
     },
-    getDetailPhone(phoneId) {
-      return (this.detailPhone = phoneList.find((phone) => phone.id === phoneId));
+    async getDetailPhone(phoneName) {
+      try {
+        const response = await api.get('/phone/name', { params: { name: phoneName } });
+
+        this.detailPhone = response.data.data[0];
+      } catch (error) {
+        return error;
+      }
+      return this.detailPhone;
     },
     getAllBrand() {
-      phoneList.forEach((phone) => {
+      this.allPhones.forEach((phone) => {
         const newBrand = {};
         newBrand.label = phone.brand;
         newBrand.value = phone.brand;
@@ -38,6 +45,29 @@ export const usePhoneStore = defineStore('phone', {
       });
 
       return this.allBrands;
+    },
+    async updatePhone(editedPhone) {
+      try {
+        const response = await api.put('/phone', editedPhone);
+
+        console.log(response);
+        return response;
+      } catch (error) {
+        return error;
+      }
+    },
+    async addNewPhone(newPhone) {
+      try {
+        const response = await api.post('/phone', newPhone);
+
+        return response;
+      } catch (error) {
+        return error;
+      }
+    },
+    async deletePhone(id) {
+      const response = await api.delete('/phone', { params: { phoneId: id } });
+      return response;
     }
   }
 });

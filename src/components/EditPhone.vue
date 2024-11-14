@@ -1,24 +1,37 @@
 <script setup>
-import { NForm, NFormItem, NInput, NInputGroup, NImage, NButton } from 'naive-ui';
+import { NForm, NFormItem, NInput, NInputGroup, NImage, NButton, useMessage } from 'naive-ui';
+import { usePhoneStore } from '@/stores/phoneStore';
 
 import { defineProps, ref, defineEmits } from 'vue';
 
+const phoneStore = usePhoneStore();
 const props = defineProps({
   detailPhone: {}
 });
-
-const emits = defineEmits(['closeEditPhone']);
-
-const phoneImg = `${import.meta.env.VITE_CELLPHONES_URL}/${props.detailPhone.img}`;
+const message = useMessage();
+const emits = defineEmits(['closeEditPhone', 'closeEditPhoneSuccess']);
 
 const closeEditPhoneHandler = () => {
   emits('closeEditPhone');
 };
 
+const closeEditPhoneSuccessHandler = () => {
+  emits('closeEditPhoneSuccess');
+};
+
 const editedPhone = ref({});
-const editPhoneHandler = () => {
+const editPhoneHandler = async () => {
   editedPhone.value = props.detailPhone;
   console.log(editedPhone.value);
+  try {
+    const res = await phoneStore.updatePhone(editedPhone.value);
+    if (res) {
+      message.success('Sửa thành công!');
+      closeEditPhoneSuccessHandler();
+    }
+  } catch (error) {
+    message.error('Sửa thất bại!');
+  }
 };
 </script>
 
@@ -26,7 +39,10 @@ const editPhoneHandler = () => {
   <p class="edit-phone-title">Sửa thông tin điện thoại</p>
   <n-form ref="formRef" :model="props.detailPhone">
     <div class="edit-phone-input-wrap">
-      <n-image width="200" :src="phoneImg" />
+      <n-image width="200" :src="props.detailPhone.img" v-model="props.detailPhone.img" />
+      <n-form-item path="img" label="Đường dẫn ảnh">
+        <n-input v-model:value="props.detailPhone.img" @keydown.enter.prevent />
+      </n-form-item>
       <n-form-item path="name" label="Tên điện thoại">
         <n-input v-model:value="props.detailPhone.name" @keydown.enter.prevent />
       </n-form-item>
@@ -320,7 +336,7 @@ const editPhoneHandler = () => {
       </div>
     </div>
     <div class="edit-phone-footer">
-      <n-button @click="editPhoneHandler">Sửa</n-button>
+      <n-button @click="editPhoneHandler" type="success">Sửa</n-button>
       <n-button @click="closeEditPhoneHandler">Hủy</n-button>
     </div>
   </n-form>

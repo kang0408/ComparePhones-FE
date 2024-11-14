@@ -11,7 +11,7 @@ import {
   NPagination,
   NImage
 } from 'naive-ui';
-import { h, ref, computed, reactive } from 'vue';
+import { h, ref, computed, reactive, onMounted } from 'vue';
 
 import DetailPhone from '@/components/DetailPhone.vue';
 import EditPhone from '@/components/EditPhone.vue';
@@ -30,40 +30,10 @@ const phoneStore = usePhoneStore();
 const phoneList = ref();
 const brandList = ref();
 
-phoneList.value = phoneStore.getAllPhone();
-brandList.value = phoneStore.getAllBrand();
-
-// // Lọc và tìm kiếm
-// const filteredData = computed(() => {
-//   const query = searchValue.value.toLowerCase();
-//   if (!query) {
-//     return phoneList.value;
-//   } else {
-//     return phoneList.value.filter((phone) => phone.name.toLowerCase().includes(query));
-//   }
-// });
-
-// const filteredDataLength = computed(() => filteredData.value.length);
-// // Phân trang
-// const currentPage = ref(1);
-// const pageSize = ref(5);
-// const pageSlot = ref(7);
-// const pageCount = computed(() => Math.ceil(filteredDataLength.value / pageSize.value));
-
-// const paginatedData = computed(() => {
-//   const start = (currentPage.value - 1) * pageSize.value;
-//   const end = start + pageSize.value;
-
-//   return filteredData.value.slice(start, end);
-// });
-
-// const handlePageChange = (page) => {
-//   currentPage.value = page;
-// };
-
 const paginationReactive = reactive({
   page: 1,
-  pageSize: 5,
+  pageSize: 10,
+  pageCount: 20,
   showSizePicker: true,
   pageSizes: [3, 5, 7],
   onChange: (page) => {
@@ -98,7 +68,9 @@ const phoneColumns = [
     render(value) {
       return h('div', { class: 'phone-image-wrap' }, [
         h(NImage, {
-          src: `${import.meta.env.VITE_CELLPHONES_URL}/${value.image}`,
+          src: value.img.includes('http')
+            ? `${value.img}`
+            : `${import.meta.env.VITE_CELLPHONES_URL}/${value.img}`,
           class: 'phone-image'
         })
       ]);
@@ -108,7 +80,12 @@ const phoneColumns = [
     title: 'Brand',
     key: 'brand',
     sorter: 'default',
-    filterOptions: brandList.value,
+    filterOptions: [
+      {
+        label: 'All',
+        value: 'all'
+      }
+    ],
     filter(value, row) {
       return !!~row.brand.indexOf(value.toString());
     }
@@ -181,6 +158,16 @@ const phoneColumns = [
   }
 ];
 
+const searchValue = ref('');
+const filteredData = computed(() => {
+  const query = searchValue.value.toLowerCase();
+  if (!query) {
+    return phoneList.value;
+  } else {
+    return phoneList.value.filter((phone) => phone.name.toLowerCase().includes(query));
+  }
+});
+
 const checkedRowKeysRef = ref([]);
 
 const rowKey = (row) => {
@@ -193,18 +180,23 @@ const handleCheck = (rowKeys) => {
 
 const detailPhone = ref({});
 const showDetailPhone = ref(false);
-const viewInforPhone = (row) => {
+const viewInforPhone = async (row) => {
+  detailPhone.value = await phoneStore.getDetailPhone(row.name);
   showDetailPhone.value = true;
-  detailPhone.value = phoneStore.getDetailPhone(row.id);
 };
 
 const showEditPhone = ref(false);
-const editPhone = (row) => {
+const editPhone = async (row) => {
+  detailPhone.value = await phoneStore.getDetailPhone(row.name);
   showEditPhone.value = true;
-  detailPhone.value = phoneStore.getDetailPhone(row.id);
 };
 
 const closeEditPhoneHandler = () => {
+  showEditPhone.value = false;
+};
+
+const closeEditPhoneSuccessHandler = async () => {
+  fetchData();
   showEditPhone.value = false;
 };
 
@@ -217,30 +209,34 @@ const closeAddPhoneHandler = () => {
   showAddPhone.value = false;
 };
 
-const deletePhoneHandler = () => {
+const closeAddPhoneSuccessHandler = () => {
+  fetchData();
+  showAddPhone.value = false;
+};
+
+const deletePhoneHandler = async (row) => {
   dialog.warning({
     title: 'Delete phone',
     content: `Do you want to delete this phone?`,
     positiveText: 'Yes',
     negativeText: 'Cancel',
     onPositiveClick: async () => {
-      message.success('Delete phone successfully');
+      try {
+        const res = await phoneStore.deletePhone(row.id);
+
+        if (res) {
+          message.success('Delete phone successfully');
+          fetchData();
+        }
+      } catch (error) {
+        message.error('Delete phone fail');
+      }
     },
     onNegativeClick: () => {
       message.info('Cancel delete phone');
     }
   });
 };
-
-const searchValue = ref('');
-const filteredData = computed(() => {
-  const query = searchValue.value.toLowerCase();
-  if (!query) {
-    return phoneList.value;
-  } else {
-    return phoneList.value.filter((phone) => phone.name.toLowerCase().includes(query));
-  }
-});
 
 const deleteManyPhoneHandler = () => {
   if (checkedRowKeysRef.value.length == 0) message.info('Please select one phone to delete!');
@@ -252,6 +248,18 @@ const deleteManyPhoneHandler = () => {
       negativeText: 'Cancel',
       onPositiveClick: async () => {
         message.success('Delete phones successfully');
+        checkedRowKeysRef.value.forEach(async (key) => {
+          try {
+            const res = await phoneStore.deletePhone(key);
+
+            if (res) {
+              message.success('Delete phone successfully');
+              fetchData();
+            }
+          } catch (error) {
+            message.error('Delete phone fail');
+          }
+        });
       },
       onNegativeClick: () => {
         message.info('Cancel delete phones');
@@ -259,6 +267,19 @@ const deleteManyPhoneHandler = () => {
     });
   }
 };
+
+const fetchData = async () => {
+  // Cập nhật dữ liệu bảng
+  phoneList.value = await phoneStore.getPhone();
+
+  brandList.value = phoneStore.getAllBrand();
+  const brandColumn = phoneColumns.find((col) => col.key === 'brand');
+  brandColumn.filterOptions = brandList.value;
+};
+
+onMounted(() => {
+  fetchData();
+});
 </script>
 
 <template>
@@ -281,25 +302,41 @@ const deleteManyPhoneHandler = () => {
       size="large"
       :columns="phoneColumns"
       :data="filteredData"
-      :pagination="paginationReactive"
       :row-key="rowKey"
+      :pagination="paginationReactive"
       @update:checked-row-keys="handleCheck"
       striped
     />
+    <!-- <n-pagination
+      v-model:page="paginationReactive.page"
+      :page-size="paginationReactive.pageSize"
+      :page-count="paginationReactive.pageCount"
+      :show-size-picker="paginationReactive.showSizePicker"
+      :page-sizes="paginationReactive.pageSizes"
+      @update:page="onPageChange"
+      @update:page-size="onPageSizeChange"
+    /> -->
   </div>
   <n-modal v-model:show="showDetailPhone" style="margin-top: 50px; margin-bottom: 50px">
     <n-card style="width: 800px" :bordered="true" size="huge" role="dialog" aria-modal="true">
-      <DetailPhone :detail-phone="detailPhone" />
+      <DetailPhone v-if="detailPhone" :detail-phone="detailPhone" />
     </n-card>
   </n-modal>
   <n-modal v-model:show="showEditPhone" style="margin-top: 50px; margin-bottom: 50px">
     <n-card style="width: 90%" :bordered="true" size="huge" role="dialog" aria-modal="true">
-      <EditPhone :detail-phone="detailPhone" @close-edit-phone="closeEditPhoneHandler" />
+      <EditPhone
+        :detail-phone="detailPhone"
+        @close-edit-phone="closeEditPhoneHandler"
+        @close-edit-phone-success="closeEditPhoneSuccessHandler"
+      />
     </n-card>
   </n-modal>
   <n-modal v-model:show="showAddPhone" style="margin-top: 50px; margin-bottom: 50px">
     <n-card style="width: 90%" :bordered="true" size="huge" role="dialog" aria-modal="true">
-      <AddPhone @close-add-phone="closeAddPhoneHandler" />
+      <AddPhone
+        @close-add-phone="closeAddPhoneHandler"
+        @close-add-phone-success="closeAddPhoneSuccessHandler"
+      />
     </n-card>
   </n-modal>
 </template>

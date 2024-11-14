@@ -7,8 +7,6 @@ const props = defineProps({
 
 const { releaseDate, screen, camera, processor, connection, storage, battery, design, otherInfor } =
   props.detailPhone;
-
-console.log(screen);
 </script>
 
 <template>
@@ -32,7 +30,7 @@ console.log(screen);
         </tr>
         <tr>
           <td>Tính năng màn hình</td>
-          <td>{{ screen.features || 'Không có' }}</td>
+          <td v-html="screen.features || 'Không có'"></td>
         </tr>
         <tr>
           <td>Tần số quét</td>
@@ -138,7 +136,7 @@ console.log(screen);
         </tr>
         <tr>
           <td>Công nghệ sạc</td>
-          <td>{{ battery.charginTechnology || 'Không có' }}</td>
+          <td v-html="battery.charginTechnology || 'Không có'"></td>
         </tr>
         <tr>
           <td>Cổng sạc</td>
