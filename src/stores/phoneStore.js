@@ -7,6 +7,7 @@ export const usePhoneStore = defineStore('phone', {
     pagination: {},
     allPhones: [],
     allBrands: [],
+    phonesByBrand: [],
     detailPhone: {}
   }),
   actions: {
@@ -33,6 +34,7 @@ export const usePhoneStore = defineStore('phone', {
     },
     getAllBrand() {
       this.allPhones.forEach((phone) => {
+        if (phone.brand === '') return;
         const newBrand = {};
         newBrand.label = phone.brand;
         newBrand.value = phone.brand;
@@ -45,6 +47,19 @@ export const usePhoneStore = defineStore('phone', {
       });
 
       return this.allBrands;
+    },
+    async getTotalPhoneByBrand() {
+      this.allBrands.forEach(async (phone) => {
+        const response = await api.get('/phone/brand', { params: { brand: phone.value } });
+
+        const total = {};
+        total.brand = phone.value;
+        total.count = response.data.data.length;
+
+        this.phonesByBrand.push(total);
+      });
+
+      return this.phonesByBrand;
     },
     async updatePhone(editedPhone) {
       try {

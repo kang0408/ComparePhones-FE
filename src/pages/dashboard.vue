@@ -8,7 +8,6 @@ import {
   NCard,
   NInput,
   NInputGroup,
-  NPagination,
   NImage
 } from 'naive-ui';
 import { h, ref, computed, reactive, onMounted } from 'vue';
@@ -16,6 +15,7 @@ import { h, ref, computed, reactive, onMounted } from 'vue';
 import DetailPhone from '@/components/DetailPhone.vue';
 import EditPhone from '@/components/EditPhone.vue';
 import AddPhone from '@/components/AddNewPhone.vue';
+import TotalPhoneByPhone from '@/components/TotalPhoneByBrand.vue';
 
 import { usePhoneStore } from '@/stores/phoneStore';
 
@@ -29,11 +29,11 @@ const phoneStore = usePhoneStore();
 
 const phoneList = ref();
 const brandList = ref();
+const phoneBrand = ref();
 
 const paginationReactive = reactive({
   page: 1,
-  pageSize: 10,
-  pageCount: 20,
+  pageSize: 5,
   showSizePicker: true,
   pageSizes: [3, 5, 7],
   onChange: (page) => {
@@ -225,8 +225,8 @@ const deletePhoneHandler = async (row) => {
         const res = await phoneStore.deletePhone(row.id);
 
         if (res) {
-          message.success('Delete phone successfully');
           fetchData();
+          message.success('Delete phone successfully');
         }
       } catch (error) {
         message.error('Delete phone fail');
@@ -253,8 +253,8 @@ const deleteManyPhoneHandler = () => {
             const res = await phoneStore.deletePhone(key);
 
             if (res) {
-              message.success('Delete phone successfully');
               fetchData();
+              message.success('Delete phone successfully');
             }
           } catch (error) {
             message.error('Delete phone fail');
@@ -275,6 +275,8 @@ const fetchData = async () => {
   brandList.value = phoneStore.getAllBrand();
   const brandColumn = phoneColumns.find((col) => col.key === 'brand');
   brandColumn.filterOptions = brandList.value;
+
+  phoneBrand.value = await phoneStore.getTotalPhoneByBrand();
 };
 
 onMounted(() => {
@@ -283,7 +285,22 @@ onMounted(() => {
 </script>
 
 <template>
-  <p class="title">Danh sách điện thoại</p>
+  <p class="title">Phone List</p>
+  <div class="analyze-phone" v-if="phoneList && brandList">
+    <div class="total-phone-wrap">
+      <div class="total-phone">
+        <p class="total-phone-title blue">Amount of Phone</p>
+        <p>{{ phoneList.length }}</p>
+      </div>
+      <div class="total-phone">
+        <p class="total-phone-title yellow">Amount of Brand</p>
+        <p>{{ brandList.length }}</p>
+      </div>
+    </div>
+    <div>
+      <totalPhoneByPhone v-if="phoneBrand" :phone-brand="phoneBrand" />
+    </div>
+  </div>
   <div class="phone-list-wrap">
     <div class="phone-list-header">
       <n-input-group>
@@ -307,15 +324,6 @@ onMounted(() => {
       @update:checked-row-keys="handleCheck"
       striped
     />
-    <!-- <n-pagination
-      v-model:page="paginationReactive.page"
-      :page-size="paginationReactive.pageSize"
-      :page-count="paginationReactive.pageCount"
-      :show-size-picker="paginationReactive.showSizePicker"
-      :page-sizes="paginationReactive.pageSizes"
-      @update:page="onPageChange"
-      @update:page-size="onPageSizeChange"
-    /> -->
   </div>
   <n-modal v-model:show="showDetailPhone" style="margin-top: 50px; margin-bottom: 50px">
     <n-card style="width: 800px" :bordered="true" size="huge" role="dialog" aria-modal="true">
@@ -347,6 +355,44 @@ onMounted(() => {
   font-weight: 700;
   margin-left: 16px;
   margin-top: 16px;
+}
+.analyze-phone {
+  display: flex;
+  justify-content: space-between;
+  padding: 32px;
+  > div {
+    width: 45%;
+  }
+  .total-phone-wrap {
+    display: flex;
+    gap: 32px;
+    justify-content: center;
+    align-items: center;
+    .total-phone {
+      border: 1px solid;
+      border-radius: 16px;
+      text-align: center;
+      height: 150px;
+      p.total-phone-title {
+        padding: 16px;
+        font-size: 28px;
+        font-weight: 700;
+        border-top-left-radius: 16px;
+        border-top-right-radius: 16px;
+        color: #fff;
+        &.blue {
+          background: rgba(20, 100, 244, 0.7);
+        }
+        &.yellow {
+          background: rgba(219, 116, 5, 0.7);
+        }
+      }
+      p:not(.total-phone-title) {
+        font-size: 20px;
+        margin: 10% auto;
+      }
+    }
+  }
 }
 .phone-list-wrap {
   padding: 32px;

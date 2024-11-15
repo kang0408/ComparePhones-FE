@@ -6,12 +6,12 @@ const router = useRouter();
 <template>
   <header>
     <div class="logo" @click="router.push('/')">
-      <img src="../assets/logo.jpg" alt="" />
+      <img src="../assets/logo.png" alt="" />
     </div>
     <p class="title">Mobile Manager</p>
-    <div class="avatar">
+    <!-- <div class="avatar">
       <img src="../assets/avatar.jpeg" alt="" />
-    </div>
+    </div> -->
   </header>
 </template>
 
@@ -19,9 +19,11 @@ const router = useRouter();
 header {
   display: flex;
   padding: 16px 32px;
-  justify-content: space-between;
+  // justify-content: space-between;
+  gap: 32px;
   align-items: center;
   border-bottom: 2px solid $color-primary;
+  background: $color-primary;
   .logo {
     width: 60px;
     height: 60px;
@@ -36,6 +38,9 @@ header {
   .title {
     font-size: 36px;
     font-weight: 700;
+    margin-top: 0;
+    margin-left: 0;
+    color: #fff;
   }
   .avatar {
     width: 60px;

@@ -33,14 +33,5 @@ export default defineConfig({
       '@api': path.resolve(__dirname, './src/api'),
       '@utils': path.resolve(__dirname, './src/utils')
     }
-  },
-  // server: {
-  //   proxy: {
-  //     '/api/v1': {
-  //       target: 'http://18.142.236.116:8080',  // Địa chỉ API của bạn
-  //       changeOrigin: true,
-  //       rewrite: (path) => path.replace(/^\/api\/v1/, '/v1'),  // Chuyển /api/v1 thành /v1
-  //     },
-  //   },
-  // },
+  }
 });
