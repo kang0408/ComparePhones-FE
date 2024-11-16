@@ -290,8 +290,8 @@ onMounted(() => {
 
 <template>
   <p class="title">Phone List</p>
-  <div class="analyze-phone" v-if="analyzePhone">
-    <div class="total-phone-wrap">
+  <div class="analyze-phone" v-if="(analyzePhone = true)">
+    <div class="total-phone-wrap" v-if="phoneList && phoneBrand">
       <div class="total-phone">
         <p class="total-phone-title blue">Amount of Phone</p>
         <p>{{ phoneList.length }}</p>
