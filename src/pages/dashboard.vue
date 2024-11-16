@@ -268,6 +268,8 @@ const deleteManyPhoneHandler = () => {
   }
 };
 
+const analyzePhone = ref(false);
+
 const fetchData = async () => {
   // Cập nhật dữ liệu bảng
   phoneList.value = await phoneStore.getPhone();
@@ -277,6 +279,8 @@ const fetchData = async () => {
   brandColumn.filterOptions = brandList.value;
 
   phoneBrand.value = await phoneStore.getTotalPhoneByBrand();
+
+  if (phoneList.value.length !== 0 && phoneBrand.value.length !== 0) analyzePhone.value = true;
 };
 
 onMounted(() => {
@@ -286,7 +290,7 @@ onMounted(() => {
 
 <template>
   <p class="title">Phone List</p>
-  <div class="analyze-phone" v-if="phoneList && brandList">
+  <div class="analyze-phone" v-if="analyzePhone">
     <div class="total-phone-wrap">
       <div class="total-phone">
         <p class="total-phone-title blue">Amount of Phone</p>
