@@ -185,7 +185,7 @@ const { releaseDate, screen, camera, processor, connection, storage, battery, de
         </tr>
         <tr>
           <td>Các loại tiện ích</td>
-          <td>{{ otherInfor.utilities || 'Không có' }}</td>
+          <td v-html="otherInfor.utilities || 'Không có'"></td>
         </tr>
         <tr>
           <td>Các loại cảm biến</td>
