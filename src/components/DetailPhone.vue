@@ -114,18 +114,19 @@ const { releaseDate, screen, camera, processor, connection, storage, battery, de
       <table>
         <tr>
           <td>RAM</td>
-          <td>{{ storage.mobile_nfc || 'Không có' }}</td>
+          <td>{{ storage.ram || 'Không có' }}</td>
         </tr>
         <tr>
           <td>Bộ nhớ trong</td>
-          <td>{{ storage.sim || 'Không có' }}</td>
+          <td>{{ storage.internalMemory || 'Không có' }}</td>
         </tr>
         <tr>
           <td>Khe cắm thẻ nhớ</td>
-          <td>{{ storage.os || 'Không có' }}</td>
+          <td>{{ storage.memoryCardSlot || 'Không có' }}</td>
         </tr>
       </table>
     </div>
+    -
     <!-- Pin & công nghệ sạc -->
     <div class="detail-infor">
       <p class="title">Pin & công nghệ sạc</p>
@@ -154,11 +155,11 @@ const { releaseDate, screen, camera, processor, connection, storage, battery, de
         </tr>
         <tr>
           <td>Trọng lượng</td>
-          <td>{{ design.charginTechnology || 'Không có' }}</td>
+          <td>{{ design.weight || 'Không có' }}</td>
         </tr>
         <tr>
           <td>Chất liệu</td>
-          <td>{{ design.port || 'Không có' }}</td>
+          <td>{{ design.material || 'Không có' }}</td>
         </tr>
       </table>
     </div>
@@ -168,27 +169,27 @@ const { releaseDate, screen, camera, processor, connection, storage, battery, de
       <table>
         <tr>
           <td>Làm mát</td>
-          <td>{{ otherInfor.otherInfor || 'Không có' }}</td>
+          <td>{{ otherInfor.cooler || 'Không có' }}</td>
         </tr>
         <tr>
           <td>Chỉ số kháng nước, bụi</td>
-          <td>{{ otherInfor.charginTechnology || 'Không có' }}</td>
+          <td>{{ otherInfor.resistanceIndex || 'Không có' }}</td>
         </tr>
         <tr>
           <td>Công nghệ tiện ích</td>
-          <td>{{ otherInfor.port || 'Không có' }}</td>
+          <td>{{ otherInfor.tech || 'Không có' }}</td>
         </tr>
         <tr>
           <td>Công nghệ âm thanh</td>
-          <td>{{ otherInfor.port || 'Không có' }}</td>
+          <td>{{ otherInfor.soundTech || 'Không có' }}</td>
         </tr>
         <tr>
           <td>Các loại tiện ích</td>
-          <td>{{ otherInfor.port || 'Không có' }}</td>
+          <td>{{ otherInfor.utilities || 'Không có' }}</td>
         </tr>
         <tr>
           <td>Các loại cảm biến</td>
-          <td>{{ otherInfor.port || 'Không có' }}</td>
+          <td>{{ otherInfor.sensor || 'Không có' }}</td>
         </tr>
         <tr>
           <td>Ngày phát hành</td>
