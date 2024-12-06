@@ -6,7 +6,7 @@ const router = useRouter();
 <template>
   <header>
     <div class="logo" @click="router.push('/')">
-      <img src="../assets/logo.png" alt="" />
+      <img src="../../assets/logo.png" alt="" />
     </div>
     <p class="title">Mobile Manager</p>
     <!-- <div class="avatar">

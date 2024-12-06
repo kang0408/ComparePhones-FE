@@ -12,10 +12,10 @@ import {
 } from 'naive-ui';
 import { h, ref, computed, reactive, onMounted } from 'vue';
 
-import DetailPhone from '@/components/DetailPhone.vue';
-import EditPhone from '@/components/EditPhone.vue';
-import AddPhone from '@/components/AddNewPhone.vue';
-import TotalPhoneByPhone from '@/components/TotalPhoneByBrand.vue';
+import DetailPhone from '@/components/admin/DetailPhone.vue';
+import EditPhone from '@/components/admin/EditPhone.vue';
+import AddPhone from '@/components/admin/AddNewPhone.vue';
+import TotalPhoneByPhone from '@/components/admin/TotalPhoneByBrand.vue';
 
 import { usePhoneStore } from '@/stores/phoneStore';
 

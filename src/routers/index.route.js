@@ -2,13 +2,65 @@ import { createRouter, createWebHistory } from 'vue-router';
 
 const routes = [
   {
-    path: '/',
+    path: '/admin',
     component: () => import('@layout/dashboard.vue'),
     children: [
       {
-        path: '/',
+        path: 'dashboard',
         name: 'Dashboard',
         component: () => import('@pages/dashboard.vue')
+      }
+    ]
+  },
+  {
+    path: '',
+    component: () => import('@layout/default.vue'),
+    children: [
+      {
+        path: '',
+        name: 'Home',
+        component: () => import('@pages/user/home.vue')
+      },
+      {
+        path: 'brands',
+        name: 'Brands',
+        component: () => import('@pages/user/brands.vue')
+      },
+      {
+        path: 'phone/:name',
+        name: 'Phone',
+        component: () => import('@pages/user/detail-phone.vue')
+      },
+      {
+        path: 'search',
+        name: 'Search',
+        component: () => import('@/pages/user/search.vue')
+      },
+      {
+        path: 'compare',
+        name: 'Compare',
+        component: () => import('@/pages/user/compare.vue')
+      }
+    ]
+  },
+  {
+    path: '/',
+    component: () => import('@layout/blank.vue'),
+    children: [
+      {
+        path: 'sign-in',
+        name: 'Sign in',
+        component: () => import('@/pages/user/sign-in.vue')
+      },
+      {
+        path: 'sign-up',
+        name: 'Sign up',
+        component: () => import('@/pages/user/sign-up.vue')
+      },
+      {
+        path: 'forgot-password',
+        name: 'Forgot password',
+        component: () => import('@/pages/user/forgot-password.vue')
       }
     ]
   }
@@ -16,7 +68,16 @@ const routes = [
 
 const router = createRouter({
   history: createWebHistory(),
-  routes
+  routes,
+  scrollBehavior(to, from, savedPosition) {
+    if (savedPosition) {
+      return {
+        savedPosition
+      };
+    } else {
+      return { top: 0, behavior: 'smooth' };
+    }
+  }
 });
 
 export default router;

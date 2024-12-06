@@ -1,14 +1,14 @@
 <script setup>
 import { NModalProvider, NConfigProvider, NMessageProvider, NDialogProvider } from 'naive-ui';
-// const themeOverrides = {
-//   DataTable: {
-//     fontSizeMedium: '20px'
-//   }
-// };
+const themeOverrides = {
+  common: {
+    primaryColor: '#3c85fe'
+  }
+};
 </script>
 
 <template>
-  <n-config-provider>
+  <n-config-provider :theme-overrides="themeOverrides">
     <n-message-provider :max="5">
       <n-dialog-provider>
         <n-modal-provider>
