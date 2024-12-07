@@ -92,6 +92,7 @@ export const usePhoneStore = defineStore('phone', {
       } catch (error) {
         return error;
       }
+      return this.detailPhone;
     },
     async getAllBrand() {
       this.allBrands = [];
