@@ -8,7 +8,12 @@ const routes = [
       {
         path: 'dashboard',
         name: 'Dashboard',
-        component: () => import('@pages/dashboard.vue')
+        component: () => import('@/pages/admin/dashboard.vue')
+      },
+      {
+        path: 'phones-list',
+        name: 'PhonesList',
+        component: () => import('@/pages/admin/phones-list.vue')
       }
     ]
   },

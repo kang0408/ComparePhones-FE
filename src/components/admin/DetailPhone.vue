@@ -1,44 +1,52 @@
 <script setup>
-import { defineProps } from 'vue';
+import { defineProps, onMounted, ref } from 'vue';
 
+import { usePhoneStore } from '@/stores/phoneStore';
+
+const phoneStore = usePhoneStore();
 const props = defineProps({
   detailPhone: {}
 });
 
-const { releaseDate, screen, camera, processor, connection, storage, battery, design, otherInfor } =
-  props.detailPhone;
+const detailPhone = ref({});
+
+onMounted(async () => {
+  await phoneStore.getDetailPhoneById(props.detailPhone.id);
+
+  detailPhone.value = phoneStore.detailPhone;
+});
 </script>
 
 <template>
   <div class="detail-phone-wrap">
-    <p class="detail-phone-title">{{ props.detailPhone.name }}</p>
+    <p class="detail-phone-title">{{ detailPhone.name }}</p>
     <!-- Màn hình -->
     <div class="detail-infor">
       <p class="title">Màn hình</p>
       <table>
         <tr>
           <td>Kích thước màn hình</td>
-          <td>{{ screen.size || 'Không có' }}</td>
+          <td>{{ detailPhone?.screen?.size || 'Không có' }}</td>
         </tr>
         <tr>
           <td>Công nghệ màn hình</td>
-          <td>{{ screen.screen || 'Không có' }}</td>
+          <td>{{ detailPhone?.screen?.screen || 'Không có' }}</td>
         </tr>
         <tr>
           <td>Độ phân giải màn hình</td>
-          <td>{{ screen.resolution || 'Không có' }}</td>
+          <td>{{ detailPhone?.screen?.resolution || 'Không có' }}</td>
         </tr>
         <tr>
           <td>Tính năng màn hình</td>
-          <td v-html="screen.features || 'Không có'"></td>
+          <td v-html="detailPhone?.screen?.features || 'Không có'"></td>
         </tr>
         <tr>
           <td>Tần số quét</td>
-          <td>{{ screen.scanFrequency || 'Không có' }}</td>
+          <td>{{ detailPhone?.screen?.scanFrequency || 'Không có' }}</td>
         </tr>
         <tr>
           <td>Kiểu màn hình</td>
-          <td>{{ screen.type || 'Không có' }}</td>
+          <td>{{ detailPhone?.screen?.type || 'Không có' }}</td>
         </tr>
       </table>
     </div>
@@ -48,11 +56,11 @@ const { releaseDate, screen, camera, processor, connection, storage, battery, de
       <table>
         <tr>
           <td>Camera sau</td>
-          <td v-html="camera.mainCamera || 'Không có'"></td>
+          <td v-html="detailPhone?.camera?.mainCamera || 'Không có'"></td>
         </tr>
         <tr>
           <td>Camera trước</td>
-          <td>{{ camera.selfieCamera || 'Không có' }}</td>
+          <td>{{ detailPhone?.camera?.selfieCamera || 'Không có' }}</td>
         </tr>
       </table>
     </div>
@@ -62,15 +70,15 @@ const { releaseDate, screen, camera, processor, connection, storage, battery, de
       <table>
         <tr>
           <td>Chipset</td>
-          <td>{{ processor.chipset || 'Không có' }}</td>
+          <td>{{ detailPhone?.processor?.chipset || 'Không có' }}</td>
         </tr>
         <tr>
           <td>GPU</td>
-          <td>{{ processor.gpu || 'Không có' }}</td>
+          <td>{{ detailPhone?.processor?.gpu || 'Không có' }}</td>
         </tr>
         <tr>
           <td>CPU</td>
-          <td>{{ processor.cpu || 'Không có' }}</td>
+          <td>{{ detailPhone?.processor?.cpu || 'Không có' }}</td>
         </tr>
       </table>
     </div>
@@ -80,31 +88,31 @@ const { releaseDate, screen, camera, processor, connection, storage, battery, de
       <table>
         <tr>
           <td>Công nghệ NFC</td>
-          <td>{{ connection.mobile_nfc || 'Không có' }}</td>
+          <td>{{ detailPhone?.connection?.mobile_nfc || 'Không có' }}</td>
         </tr>
         <tr>
           <td>Thẻ SIM</td>
-          <td>{{ connection.sim || 'Không có' }}</td>
+          <td>{{ detailPhone?.connection?.sim || 'Không có' }}</td>
         </tr>
         <tr>
           <td>Hệ điều hành</td>
-          <td>{{ connection.os || 'Không có' }}</td>
+          <td>{{ detailPhone?.connection?.os || 'Không có' }}</td>
         </tr>
         <tr>
           <td>WLAN</td>
-          <td>{{ connection.wlan || 'Không có' }}</td>
+          <td>{{ detailPhone?.connection?.wlan || 'Không có' }}</td>
         </tr>
         <tr>
           <td>Hỗ trợ mạng</td>
-          <td>{{ connection.network || 'Không có' }}</td>
+          <td>{{ detailPhone?.connection?.network || 'Không có' }}</td>
         </tr>
         <tr>
           <td>Hỗ trợ Bluetooth</td>
-          <td>{{ connection.bluetooth || 'Không có' }}</td>
+          <td>{{ detailPhone?.connection?.bluetooth || 'Không có' }}</td>
         </tr>
         <tr>
           <td>GPS</td>
-          <td>{{ connection.gps || 'Không có' }}</td>
+          <td>{{ detailPhone?.connection?.gps || 'Không có' }}</td>
         </tr>
       </table>
     </div>
@@ -114,15 +122,15 @@ const { releaseDate, screen, camera, processor, connection, storage, battery, de
       <table>
         <tr>
           <td>RAM</td>
-          <td>{{ storage.ram || 'Không có' }}</td>
+          <td>{{ detailPhone?.storage?.ram || 'Không có' }}</td>
         </tr>
         <tr>
           <td>Bộ nhớ trong</td>
-          <td>{{ storage.internalMemory || 'Không có' }}</td>
+          <td>{{ detailPhone?.storage?.internalMemory || 'Không có' }}</td>
         </tr>
         <tr>
           <td>Khe cắm thẻ nhớ</td>
-          <td>{{ storage.memoryCardSlot || 'Không có' }}</td>
+          <td>{{ detailPhone?.storage?.memoryCardSlot || 'Không có' }}</td>
         </tr>
       </table>
     </div>
@@ -133,15 +141,15 @@ const { releaseDate, screen, camera, processor, connection, storage, battery, de
       <table>
         <tr>
           <td>Pin</td>
-          <td>{{ battery.battery || 'Không có' }}</td>
+          <td>{{ detailPhone?.battery?.battery || 'Không có' }}</td>
         </tr>
         <tr>
           <td>Công nghệ sạc</td>
-          <td v-html="battery.charginTechnology || 'Không có'"></td>
+          <td v-html="detailPhone?.battery?.charginTechnology || 'Không có'"></td>
         </tr>
         <tr>
           <td>Cổng sạc</td>
-          <td>{{ battery.port || 'Không có' }}</td>
+          <td>{{ detailPhone?.battery?.port || 'Không có' }}</td>
         </tr>
       </table>
     </div>
@@ -151,15 +159,15 @@ const { releaseDate, screen, camera, processor, connection, storage, battery, de
       <table>
         <tr>
           <td>Kích thước</td>
-          <td>{{ design.size || 'Không có' }}</td>
+          <td>{{ detailPhone?.design?.size || 'Không có' }}</td>
         </tr>
         <tr>
           <td>Trọng lượng</td>
-          <td>{{ design.weight || 'Không có' }}</td>
+          <td>{{ detailPhone?.design?.weight || 'Không có' }}</td>
         </tr>
         <tr>
           <td>Chất liệu</td>
-          <td>{{ design.material || 'Không có' }}</td>
+          <td>{{ detailPhone?.design?.material || 'Không có' }}</td>
         </tr>
       </table>
     </div>
@@ -169,31 +177,31 @@ const { releaseDate, screen, camera, processor, connection, storage, battery, de
       <table>
         <tr>
           <td>Làm mát</td>
-          <td>{{ otherInfor.cooler || 'Không có' }}</td>
+          <td>{{ detailPhone?.otherInfor?.cooler || 'Không có' }}</td>
         </tr>
         <tr>
           <td>Chỉ số kháng nước, bụi</td>
-          <td>{{ otherInfor.resistanceIndex || 'Không có' }}</td>
+          <td>{{ detailPhone?.otherInfor?.resistanceIndex || 'Không có' }}</td>
         </tr>
         <tr>
           <td>Công nghệ tiện ích</td>
-          <td>{{ otherInfor.tech || 'Không có' }}</td>
+          <td>{{ detailPhone?.otherInfor?.tech || 'Không có' }}</td>
         </tr>
         <tr>
           <td>Công nghệ âm thanh</td>
-          <td>{{ otherInfor.soundTech || 'Không có' }}</td>
+          <td>{{ detailPhone?.otherInfor?.soundTech || 'Không có' }}</td>
         </tr>
         <tr>
           <td>Các loại tiện ích</td>
-          <td v-html="otherInfor.utilities || 'Không có'"></td>
+          <td v-html="detailPhone?.otherInfor?.utilities || 'Không có'"></td>
         </tr>
         <tr>
           <td>Các loại cảm biến</td>
-          <td>{{ otherInfor.sensor || 'Không có' }}</td>
+          <td>{{ detailPhone?.otherInfor?.sensor || 'Không có' }}</td>
         </tr>
         <tr>
           <td>Ngày phát hành</td>
-          <td>{{ releaseDate || 'Không có' }}</td>
+          <td>{{ detailPhone?.releaseDate || 'Không có' }}</td>
         </tr>
       </table>
     </div>

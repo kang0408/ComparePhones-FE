@@ -27,15 +27,15 @@ const dialog = useDialog();
 const message = useMessage();
 const phoneStore = usePhoneStore();
 
-const phoneList = ref();
-const brandList = ref();
+const phoneList = ref([]);
+const brandList = ref([]);
 const phoneBrand = ref();
 
 const paginationReactive = reactive({
   page: 1,
-  pageSize: 5,
+  pageSize: 10,
   showSizePicker: true,
-  pageSizes: [3, 5, 7],
+  pageSizes: [10, 20, 30],
   onChange: (page) => {
     paginationReactive.page = page;
   },
@@ -51,19 +51,19 @@ const phoneColumns = [
     options: ['all', 'none']
   },
   {
-    title: 'Order',
+    title: 'STT',
     key: 'order',
     render: (_, index) => {
       return index + 1;
     }
   },
   {
-    title: 'Name',
+    title: 'Tên',
     key: 'name',
     sorter: 'default'
   },
   {
-    title: 'Image',
+    title: 'Hình ảnh',
     key: 'image',
     render(value) {
       return h('div', { class: 'phone-image-wrap' }, [
@@ -77,45 +77,45 @@ const phoneColumns = [
     }
   },
   {
-    title: 'Brand',
+    title: 'Hãng',
     key: 'brand',
-    sorter: 'default',
-    filterOptions: [
-      {
-        label: 'All',
-        value: 'all'
-      }
-    ],
-    filter(value, row) {
-      return !!~row.brand.indexOf(value.toString());
-    }
+    sorter: 'default'
+    // filterOptions: [
+    //   {
+    //     label: 'Tất cả',
+    //     value: 'all'
+    //   }
+    // ],
+    // filter(value, row) {
+    //   return !!~row.brand.indexOf(value.toString());
+    // }
   },
   {
-    title: 'Cost',
+    title: 'Giá',
     key: 'cost',
-    filterOptions: [
-      {
-        label: 'Not price yet',
-        value: 'Not price yet'
-      },
-      {
-        label: 'Has price',
-        value: 'Has price'
-      }
-    ],
-    filter(value, row) {
-      if (value.toString() === 'Not price yet') {
-        return !!~row.cost.indexOf(value.toString());
-      } else {
-        return !~row.cost.indexOf('Not price yet');
-      }
-    },
+    // filterOptions: [
+    //   {
+    //     label: 'Not price yet',
+    //     value: 'Not price yet'
+    //   },
+    //   {
+    //     label: 'Has price',
+    //     value: 'Has price'
+    //   }
+    // ],
+    // filter(value, row) {
+    //   if (value.toString() === '-1') {
+    //     return !!~row.cost.indexOf(value.toString());
+    //   } else {
+    //     return !~row.cost.indexOf('Not price yet');
+    //   }
+    // },
     sorter(rowA, rowB) {
       return rowA.cost - rowB.cost;
     }
   },
   {
-    title: 'Action',
+    title: 'Tác vụ',
     key: 'action',
     width: '200px',
     render(row) {
@@ -181,13 +181,15 @@ const handleCheck = (rowKeys) => {
 const detailPhone = ref({});
 const showDetailPhone = ref(false);
 const viewInforPhone = async (row) => {
-  detailPhone.value = await phoneStore.getDetailPhone(row.name);
+  await phoneStore.getDetailPhoneById(row.id);
+  detailPhone.value = phoneStore.detailPhone;
   showDetailPhone.value = true;
 };
 
 const showEditPhone = ref(false);
 const editPhone = async (row) => {
-  detailPhone.value = await phoneStore.getDetailPhone(row.name);
+  await phoneStore.getDetailPhone(row.name);
+  detailPhone.value = phoneStore.allPhones;
   showEditPhone.value = true;
 };
 
@@ -268,19 +270,16 @@ const deleteManyPhoneHandler = () => {
   }
 };
 
-const analyzePhone = ref(false);
-
 const fetchData = async () => {
   // Cập nhật dữ liệu bảng
-  phoneList.value = await phoneStore.getPhone();
+  await phoneStore.getPhone();
+  phoneList.value = phoneStore.allPhones;
 
-  brandList.value = phoneStore.getAllBrand();
+  await phoneStore.getAllBrand();
+  brandList.value = phoneStore.allBrands;
   const brandColumn = phoneColumns.find((col) => col.key === 'brand');
   brandColumn.filterOptions = brandList.value;
-
-  phoneBrand.value = await phoneStore.getTotalPhoneByBrand();
-
-  if (phoneList.value.length !== 0 && phoneBrand.value.length !== 0) analyzePhone.value = true;
+  console.log(brandColumn.filterOptions);
 };
 
 onMounted(() => {
@@ -289,34 +288,18 @@ onMounted(() => {
 </script>
 
 <template>
-  <p class="title">Phone List</p>
-  <div class="analyze-phone" v-if="(analyzePhone = true)">
-    <div class="total-phone-wrap" v-if="phoneList && phoneBrand">
-      <div class="total-phone">
-        <p class="total-phone-title blue">Amount of Phone</p>
-        <p>{{ phoneList.length }}</p>
-      </div>
-      <div class="total-phone">
-        <p class="total-phone-title yellow">Amount of Brand</p>
-        <p>{{ brandList.length }}</p>
-      </div>
-    </div>
-    <div>
-      <totalPhoneByPhone v-if="phoneBrand" :phone-brand="phoneBrand" />
-    </div>
-  </div>
   <div class="phone-list-wrap">
     <div class="phone-list-header">
       <n-input-group>
         <n-input
           v-model:value="searchValue"
           type="text"
-          placeholder="Search by name here..."
+          placeholder="Tìm kiếm ở đây..."
           style="width: 400px; margin-bottom: 16px; margin-right: 16px"
         />
-        <n-button @click="deleteManyPhoneHandler" type="error">Delete phone</n-button>
+        <n-button @click="deleteManyPhoneHandler" type="error">Xóa nhiều</n-button>
       </n-input-group>
-      <n-button @click="showPhone" type="primary">Add phone</n-button>
+      <n-button @click="showPhone" type="primary">Thêm điện thoại</n-button>
     </div>
     <n-data-table
       v-model:checked-row-keys="checkedRowKeysRef"
@@ -357,8 +340,8 @@ onMounted(() => {
 .title {
   font-size: 28px;
   font-weight: 700;
-  margin-left: 16px;
-  margin-top: 16px;
+  margin-left: 0;
+  margin-bottom: 16px;
 }
 .analyze-phone {
   display: flex;
@@ -398,9 +381,7 @@ onMounted(() => {
     }
   }
 }
-.phone-list-wrap {
-  padding: 32px;
-}
+
 .phone-image-wrap {
   width: 100px;
   height: 100px;

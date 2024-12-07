@@ -5,11 +5,9 @@ import BestSeller from '@/components/user/home/BestSeller.vue';
 </script>
 
 <template>
-  <div>
-    <Slideshow />
-    <BrandList />
-    <BestSeller />
-  </div>
+  <Slideshow />
+  <BrandList />
+  <BestSeller />
 </template>
 
 <style lang="scss" scoped></style>

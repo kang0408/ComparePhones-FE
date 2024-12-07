@@ -8,7 +8,7 @@ import { usePhoneCompareStore } from '@/stores/phoneCompareStore';
 import AppContentHeading from '@/components/user/AppContentHeading.vue';
 import SearchPhone from '@/components/user/SearchPhone.vue';
 
-import phoneList from '@/stores/phoneList';
+// import phoneList from '@/stores/phoneList';
 
 const phoneCompareStore = usePhoneCompareStore();
 const cellphone_url = import.meta.env.VITE_CELLPHONES_URL;
@@ -16,10 +16,14 @@ const showModal = ref(false);
 const phoneCompareList = ref([]);
 const phoneListEmpty = ref(0);
 const phonesPickerRef = ref(null);
-const phoneListRan = phoneList.slice(0, 3);
-console.log(phoneListRan);
+const phoneList = ref([]);
 
 phoneCompareList.value = phoneCompareStore.phoneCompareList;
+
+const formatTooltip = (value) => {
+  let number = parseInt(value, 10);
+  return new Intl.NumberFormat('vi-VN').format(number) + 'đ';
+};
 
 const delPhone = (name) => {
   phoneCompareStore.removePhoneCompare(name);
@@ -28,9 +32,13 @@ const delPhone = (name) => {
 if (phoneCompareList.value.length === 0) phoneListEmpty.value = 3;
 watch(phoneCompareList.value, () => {
   phoneListEmpty.value = 3 - phoneCompareList.value.length;
+  phoneList.value = phoneCompareList.value;
 });
 
 onMounted(() => {
+  phoneListEmpty.value = 3 - phoneCompareList.value.length;
+  phoneList.value = phoneCompareList.value;
+
   gsap.from(phonesPickerRef.value, {
     opacity: 0,
     y: 400,
@@ -62,45 +70,69 @@ onMounted(() => {
       </div>
     </div>
     <div class="phone-specifications">
+      <div class="detail-infor">
+        <p class="title">Tên điện thoại</p>
+        <table>
+          <tr>
+            <td>Tên điện thoại</td>
+            <td v-for="(phone, index) in phoneList" :key="index">
+              {{ phone.name || 'Không có' }}
+            </td>
+          </tr>
+          <tr>
+            <td>Giá</td>
+            <td v-for="(phone, index) in phoneList" :key="index">
+              <span v-if="phone.cost === -1">Không có giá</span>
+              <span v-else>{{ formatTooltip(phone.cost) }}</span>
+            </td>
+          </tr>
+          <tr>
+            <td>Ngày phát hành</td>
+            <td v-for="(phone, index) in phoneList" :key="index">
+              {{ phone.releaseDate || 'Không có' }}
+            </td>
+          </tr>
+        </table>
+      </div>
       <!-- Màn hình -->
       <div class="detail-infor">
         <p class="title">Màn hình</p>
         <table>
           <tr>
             <td>Kích thước màn hình</td>
-            <td v-for="(phone, index) in phoneListRan" :key="index">
+            <td v-for="(phone, index) in phoneList" :key="index">
               {{ phone.screen.size || 'Không có' }}
             </td>
           </tr>
           <tr>
             <td>Công nghệ màn hình</td>
-            <td v-for="(phone, index) in phoneListRan" :key="index">
+            <td v-for="(phone, index) in phoneList" :key="index">
               {{ phone.screen.screen || 'Không có' }}
             </td>
           </tr>
           <tr>
             <td>Độ phân giải màn hình</td>
-            <td v-for="(phone, index) in phoneListRan" :key="index">
+            <td v-for="(phone, index) in phoneList" :key="index">
               {{ phone.screen.resolution || 'Không có' }}
             </td>
           </tr>
           <tr>
             <td>Tính năng màn hình</td>
             <td
-              v-for="(phone, index) in phoneListRan"
+              v-for="(phone, index) in phoneList"
               :key="index"
               v-html="phone.screen.features || 'Không có'"
             ></td>
           </tr>
           <tr>
             <td>Tần số quét</td>
-            <td v-for="(phone, index) in phoneListRan" :key="index">
+            <td v-for="(phone, index) in phoneList" :key="index">
               {{ phone.screen.scanFrequency || 'Không có' }}
             </td>
           </tr>
           <tr>
             <td>Kiểu màn hình</td>
-            <td v-for="(phone, index) in phoneListRan" :key="index">
+            <td v-for="(phone, index) in phoneList" :key="index">
               {{ phone.screen.type || 'Không có' }}
             </td>
           </tr>
@@ -113,14 +145,14 @@ onMounted(() => {
           <tr>
             <td>Camera sau</td>
             <td
-              v-for="(phone, index) in phoneListRan"
+              v-for="(phone, index) in phoneList"
               :key="index"
               v-html="phone.camera.mainCamera || 'Không có'"
             ></td>
           </tr>
           <tr>
             <td>Camera trước</td>
-            <td v-for="(phone, index) in phoneListRan" :key="index">
+            <td v-for="(phone, index) in phoneList" :key="index">
               {{ phone.camera.selfieCamera || 'Không có' }}
             </td>
           </tr>
@@ -132,19 +164,19 @@ onMounted(() => {
         <table>
           <tr>
             <td>Chipset</td>
-            <td v-for="(phone, index) in phoneListRan" :key="index">
+            <td v-for="(phone, index) in phoneList" :key="index">
               {{ phone.processor.chipset || 'Không có' }}
             </td>
           </tr>
           <tr>
             <td>GPU</td>
-            <td v-for="(phone, index) in phoneListRan" :key="index">
+            <td v-for="(phone, index) in phoneList" :key="index">
               {{ phone.processor.gpu || 'Không có' }}
             </td>
           </tr>
           <tr>
             <td>CPU</td>
-            <td v-for="(phone, index) in phoneListRan" :key="index">
+            <td v-for="(phone, index) in phoneList" :key="index">
               {{ phone.processor.cpu || 'Không có' }}
             </td>
           </tr>
@@ -156,43 +188,43 @@ onMounted(() => {
         <table>
           <tr>
             <td>Công nghệ NFC</td>
-            <td v-for="(phone, index) in phoneListRan" :key="index">
+            <td v-for="(phone, index) in phoneList" :key="index">
               {{ phone.connection.mobile_nfc || 'Không có' }}
             </td>
           </tr>
           <tr>
             <td>Thẻ SIM</td>
-            <td v-for="(phone, index) in phoneListRan" :key="index">
+            <td v-for="(phone, index) in phoneList" :key="index">
               {{ phone.connection.sim || 'Không có' }}
             </td>
           </tr>
           <tr>
             <td>Hệ điều hành</td>
-            <td v-for="(phone, index) in phoneListRan" :key="index">
+            <td v-for="(phone, index) in phoneList" :key="index">
               {{ phone.connection.os || 'Không có' }}
             </td>
           </tr>
           <tr>
             <td>WLAN</td>
-            <td v-for="(phone, index) in phoneListRan" :key="index">
+            <td v-for="(phone, index) in phoneList" :key="index">
               {{ phone.connection.wlan || 'Không có' }}
             </td>
           </tr>
           <tr>
             <td>Hỗ trợ mạng</td>
-            <td v-for="(phone, index) in phoneListRan" :key="index">
+            <td v-for="(phone, index) in phoneList" :key="index">
               {{ phone.connection.network || 'Không có' }}
             </td>
           </tr>
           <tr>
             <td>Hỗ trợ Bluetooth</td>
-            <td v-for="(phone, index) in phoneListRan" :key="index">
+            <td v-for="(phone, index) in phoneList" :key="index">
               {{ phone.connection.bluetooth || 'Không có' }}
             </td>
           </tr>
           <tr>
             <td>GPS</td>
-            <td v-for="(phone, index) in phoneListRan" :key="index">
+            <td v-for="(phone, index) in phoneList" :key="index">
               {{ phone.connection.gps || 'Không có' }}
             </td>
           </tr>
@@ -204,19 +236,19 @@ onMounted(() => {
         <table>
           <tr>
             <td>RAM</td>
-            <td v-for="(phone, index) in phoneListRan" :key="index">
+            <td v-for="(phone, index) in phoneList" :key="index">
               {{ phone.storage.ram || 'Không có' }}
             </td>
           </tr>
           <tr>
             <td>Bộ nhớ trong</td>
-            <td v-for="(phone, index) in phoneListRan" :key="index">
+            <td v-for="(phone, index) in phoneList" :key="index">
               {{ phone.storage.internalMemory || 'Không có' }}
             </td>
           </tr>
           <tr>
             <td>Khe cắm thẻ nhớ</td>
-            <td v-for="(phone, index) in phoneListRan" :key="index">
+            <td v-for="(phone, index) in phoneList" :key="index">
               {{ phone.storage.memoryCardSlot || 'Không có' }}
             </td>
           </tr>
@@ -228,21 +260,21 @@ onMounted(() => {
         <table>
           <tr>
             <td>Pin</td>
-            <td v-for="(phone, index) in phoneListRan" :key="index">
+            <td v-for="(phone, index) in phoneList" :key="index">
               {{ phone.battery.battery || 'Không có' }}
             </td>
           </tr>
           <tr>
             <td>Công nghệ sạc</td>
             <td
-              v-for="(phone, index) in phoneListRan"
+              v-for="(phone, index) in phoneList"
               :key="index"
               v-html="phone.battery.charginTechnology || 'Không có'"
             ></td>
           </tr>
           <tr>
             <td>Cổng sạc</td>
-            <td v-for="(phone, index) in phoneListRan" :key="index">
+            <td v-for="(phone, index) in phoneList" :key="index">
               {{ phone.battery.port || 'Không có' }}
             </td>
           </tr>
@@ -254,19 +286,19 @@ onMounted(() => {
         <table>
           <tr>
             <td>Kích thước</td>
-            <td v-for="(phone, index) in phoneListRan" :key="index">
+            <td v-for="(phone, index) in phoneList" :key="index">
               {{ phone.design.size || 'Không có' }}
             </td>
           </tr>
           <tr>
             <td>Trọng lượng</td>
-            <td v-for="(phone, index) in phoneListRan" :key="index">
+            <td v-for="(phone, index) in phoneList" :key="index">
               {{ phone.design.weight || 'Không có' }}
             </td>
           </tr>
           <tr>
             <td>Chất liệu</td>
-            <td v-for="(phone, index) in phoneListRan" :key="index">
+            <td v-for="(phone, index) in phoneList" :key="index">
               {{ phone.design.material || 'Không có' }}
             </td>
           </tr>
@@ -278,26 +310,26 @@ onMounted(() => {
         <table>
           <tr>
             <td>Làm mát</td>
-            <td v-for="(phone, index) in phoneListRan" :key="index">
+            <td v-for="(phone, index) in phoneList" :key="index">
               {{ phone.otherInfor.cooler || 'Không có' }}
             </td>
           </tr>
           <tr>
             <td>Chỉ số kháng nước, bụi</td>
-            <td v-for="(phone, index) in phoneListRan" :key="index">
+            <td v-for="(phone, index) in phoneList" :key="index">
               {{ phone.otherInfor.resistanceIndex || 'Không có' }}
             </td>
           </tr>
           <tr>
             <td>Công nghệ tiện ích</td>
-            <td v-for="(phone, index) in phoneListRan" :key="index">
+            <td v-for="(phone, index) in phoneList" :key="index">
               {{ phone.otherInfor.tech || 'Không có' }}
             </td>
           </tr>
           <tr>
             <td>Công nghệ âm thanh</td>
             <td
-              v-for="(phone, index) in phoneListRan"
+              v-for="(phone, index) in phoneList"
               :key="index"
               v-html="phone.otherInfor.soundTech || 'Không có'"
             ></td>
@@ -305,21 +337,15 @@ onMounted(() => {
           <tr>
             <td>Các loại tiện ích</td>
             <td
-              v-for="(phone, index) in phoneListRan"
+              v-for="(phone, index) in phoneList"
               :key="index"
               v-html="phone.otherInfor.utilities || 'Không có'"
             ></td>
           </tr>
           <tr>
             <td>Các loại cảm biến</td>
-            <td v-for="(phone, index) in phoneListRan" :key="index">
+            <td v-for="(phone, index) in phoneList" :key="index">
               {{ phone.otherInfor.sensor || 'Không có' }}
-            </td>
-          </tr>
-          <tr>
-            <td>Ngày phát hành</td>
-            <td v-for="(phone, index) in phoneListRan" :key="index">
-              {{ phone.releaseDate || 'Không có' }}
             </td>
           </tr>
         </table>
@@ -375,6 +401,7 @@ onMounted(() => {
         border: 2px solid $color-primary;
         border-radius: 16px;
         padding: 16px;
+        min-height: 232px;
         .phone-img {
           width: 100%;
           img {
@@ -384,7 +411,7 @@ onMounted(() => {
           }
         }
         p {
-          max-width: 200px;
+          max-width: 100%;
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
@@ -431,6 +458,9 @@ onMounted(() => {
             width: 26%;
             &:first-child {
               width: 24%;
+              font-weight: 600;
+            }
+            &:not(:first-child) {
             }
           }
           &:nth-child(odd) {

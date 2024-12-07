@@ -1,69 +1,77 @@
 <script setup>
 import { useRoute, useRouter } from 'vue-router';
-import { onBeforeMount, ref, onMounted } from 'vue';
+import { ref, onMounted } from 'vue';
 import { gsap } from 'gsap';
 import ScrollTrigger from 'gsap/ScrollTrigger';
 import { useMessage } from 'naive-ui';
 
 import AppButton from '@/components/user/AppButton.vue';
 
-import phoneList from '@/stores/phoneList';
+// import phoneList from '@/stores/phoneList';
 import leftArrow from '@assets/icons/leftArrow.svg';
 
 import { usePhoneCompareStore } from '@/stores/phoneCompareStore';
-
-const router = useRouter();
-const route = useRoute();
-const cellphone_url = import.meta.env.VITE_CELLPHONES_URL;
-const detailPhone = ref({});
-const message = useMessage();
+import { usePhoneStore } from '@/stores/phoneStore';
 
 // Đăng ký ScrollTrigger
 gsap.registerPlugin(ScrollTrigger);
 
+const router = useRouter();
+const route = useRoute();
 const phoneCompareStore = usePhoneCompareStore();
-
-onBeforeMount(() => {
-  detailPhone.value = phoneList.find(
-    (phone) => phone.name.toLowerCase() === route.params.name.toLowerCase()
-  );
-  console.log(detailPhone.value);
-});
+const phoneStore = usePhoneStore();
+const detailPhone = ref({});
+const message = useMessage();
+const cellphone_url = import.meta.env.VITE_CELLPHONES_URL;
 
 const phoneCover = ref(null);
 const phoneInfor = ref(null);
 
 const addComparePhone = (phone) => {
+  console.log(phone);
   if (phoneCompareStore.phoneCompareList.length === 3) {
     message.info('Chỉ có thể so sánh tối đa 3 điện thoại');
     return;
   } else {
     phoneCompareStore.addPhoneCompare({
       img: phone.img,
-      name: phone.name
+      name: phone.name,
+      id: phone.id
     });
     message.success('Thêm điện thoại thành công');
   }
 };
 
-onMounted(() => {
-  gsap.from(phoneCover.value, {
-    opacity: 0,
-    x: -400,
-    duration: 1.4,
-    ease: 'power2.out'
-  });
-  gsap.from(phoneInfor.value, {
-    opacity: 0,
-    x: 400,
-    duration: 1.4,
-    ease: 'power2.out'
-  });
+const formatTooltip = (value) => {
+  let number = parseInt(value, 10);
+  return new Intl.NumberFormat('vi-VN').format(number) + 'đ';
+};
+
+onMounted(async () => {
+  await phoneStore.getDetailPhoneById(route.query.id);
+  detailPhone.value = phoneStore.detailPhone;
+
+  if (phoneCover.value) {
+    gsap.from(phoneCover.value, {
+      opacity: 0,
+      x: -400,
+      duration: 1.4,
+      ease: 'power2.out'
+    });
+  }
+  if (phoneInfor.value) {
+    gsap.from(phoneInfor.value, {
+      opacity: 0,
+      x: 400,
+      duration: 1.4,
+      ease: 'power2.out'
+    });
+  }
 });
 </script>
 
 <template>
-  <div class="detail-phone-wrap">
+  <div v-if="detailPhone" class="detail-phone-wrap">
     <div class="back-icon" @click="router.back()">
       <img :src="leftArrow" alt="" />
       <span>Back</span>
@@ -72,27 +80,29 @@ onMounted(() => {
       <img :src="`${cellphone_url}/${detailPhone.img}`" alt="" />
     </div>
     <div class="infor" ref="phoneInfor">
-      <p class="brand">{{ detailPhone.brand }}</p>
-      <p class="name">{{ detailPhone.name }}</p>
-      <p class="price" :class="{ 'not-price': detailPhone.cost === 'Not price yet' }">
-        <span v-if="detailPhone.cost === 'Not price yet'">{{ detailPhone.cost }}</span>
-        <span v-else>{{ detailPhone.cost }}đ</span>
+      <p class="brand">{{ detailPhone?.brand }}</p>
+      <p class="name">{{ detailPhone?.name }}</p>
+      <p class="price" :class="{ 'not-price': detailPhone?.cost === -1 }">
+        <span v-if="detailPhone?.cost === -1">Không có giá</span>
+        <span v-else>{{ formatTooltip(detailPhone?.cost) }}</span>
       </p>
       <div>
-        <p><span>Kích thước màn hình: </span>{{ detailPhone.screen.size || 'Không có' }}</p>
-        <p><span>Công nghệ màn hình: </span>{{ detailPhone.screen.screen || 'Không có' }}</p>
+        <p><span>Kích thước màn hình: </span>{{ detailPhone?.screen?.size || 'Không có' }}</p>
+        <p><span>Công nghệ màn hình: </span>{{ detailPhone?.screen?.screen || 'Không có' }}</p>
         <div>
           <span>Camera sau: </span>
-          <p v-html="detailPhone.camera.mainCamera || 'Không có'"></p>
+          <p v-html="detailPhone?.camera?.mainCamera || 'Không có'"></p>
         </div>
-        <p><span>Camera trước: </span>{{ detailPhone.camera.selfieCamera || 'Không có' }}</p>
-        <p><span>Chipset: </span>{{ detailPhone.processor.chipset || 'Không có' }}</p>
-        <p><span>Dung lượng RAM: </span>{{ detailPhone.storage.ram || 'Không có' }}</p>
-        <p><span>Bộ nhớ trong: </span>{{ detailPhone.storage.internalMemory || 'Không có' }}</p>
-        <p><span>Pin: </span>{{ detailPhone.battery.battery || 'Không có' }}</p>
-        <p><span>Hệ điều hành: </span>{{ detailPhone.connection.os || 'Không có' }}</p>
-        <p><span>Độ phân giải màn hình: </span>{{ detailPhone.screen.resolution || 'Không có' }}</p>
-        <p><span>Ngày phát hành: </span>{{ detailPhone.releaseDate || 'Không có' }}</p>
+        <p><span>Camera trước: </span>{{ detailPhone?.camera?.selfieCamera || 'Không có' }}</p>
+        <p><span>Chipset: </span>{{ detailPhone?.processor?.chipset || 'Không có' }}</p>
+        <p><span>Dung lượng RAM: </span>{{ detailPhone?.storage?.ram || 'Không có' }}</p>
+        <p><span>Bộ nhớ trong: </span>{{ detailPhone?.storage?.internalMemory || 'Không có' }}</p>
+        <p><span>Pin: </span>{{ detailPhone?.battery?.battery || 'Không có' }}</p>
+        <p><span>Hệ điều hành: </span>{{ detailPhone?.connection?.os || 'Không có' }}</p>
+        <p>
+          <span>Độ phân giải màn hình: </span>{{ detailPhone?.screen?.resolution || 'Không có' }}
+        </p>
+        <p><span>Ngày phát hành: </span>{{ detailPhone?.releaseDate || 'Không có' }}</p>
       </div>
       <AppButton class="custome-btn" @click="addComparePhone(detailPhone)">So sánh</AppButton>
     </div>
@@ -104,27 +114,27 @@ onMounted(() => {
       <table>
         <tr>
           <td>Kích thước màn hình</td>
-          <td>{{ detailPhone.screen.size || 'Không có' }}</td>
+          <td>{{ detailPhone?.screen?.size || 'Không có' }}</td>
         </tr>
         <tr>
           <td>Công nghệ màn hình</td>
-          <td>{{ detailPhone.screen.screen || 'Không có' }}</td>
+          <td>{{ detailPhone?.screen?.screen || 'Không có' }}</td>
         </tr>
         <tr>
           <td>Độ phân giải màn hình</td>
-          <td>{{ detailPhone.screen.resolution || 'Không có' }}</td>
+          <td>{{ detailPhone?.screen?.resolution || 'Không có' }}</td>
         </tr>
         <tr>
           <td>Tính năng màn hình</td>
-          <td v-html="detailPhone.screen.features || 'Không có'"></td>
+          <td v-html="detailPhone?.screen?.features || 'Không có'"></td>
         </tr>
         <tr>
           <td>Tần số quét</td>
-          <td>{{ detailPhone.screen.scanFrequency || 'Không có' }}</td>
+          <td>{{ detailPhone?.screen?.scanFrequency || 'Không có' }}</td>
         </tr>
         <tr>
           <td>Kiểu màn hình</td>
-          <td>{{ detailPhone.screen.type || 'Không có' }}</td>
+          <td>{{ detailPhone?.screen?.type || 'Không có' }}</td>
         </tr>
       </table>
     </div>
@@ -134,11 +144,11 @@ onMounted(() => {
       <table>
         <tr>
           <td>Camera sau</td>
-          <td v-html="detailPhone.camera.mainCamera || 'Không có'"></td>
+          <td v-html="detailPhone?.camera?.mainCamera || 'Không có'"></td>
         </tr>
         <tr>
           <td>Camera trước</td>
-          <td>{{ detailPhone.camera.selfieCamera || 'Không có' }}</td>
+          <td>{{ detailPhone?.camera?.selfieCamera || 'Không có' }}</td>
         </tr>
       </table>
     </div>
@@ -148,15 +158,15 @@ onMounted(() => {
       <table>
         <tr>
           <td>Chipset</td>
-          <td>{{ detailPhone.processor.chipset || 'Không có' }}</td>
+          <td>{{ detailPhone?.processor?.chipset || 'Không có' }}</td>
         </tr>
         <tr>
           <td>GPU</td>
-          <td>{{ detailPhone.processor.gpu || 'Không có' }}</td>
+          <td>{{ detailPhone?.processor?.gpu || 'Không có' }}</td>
         </tr>
         <tr>
           <td>CPU</td>
-          <td>{{ detailPhone.processor.cpu || 'Không có' }}</td>
+          <td>{{ detailPhone?.processor?.cpu || 'Không có' }}</td>
         </tr>
       </table>
     </div>
@@ -166,31 +176,31 @@ onMounted(() => {
       <table>
         <tr>
           <td>Công nghệ NFC</td>
-          <td>{{ detailPhone.connection.mobile_nfc || 'Không có' }}</td>
+          <td>{{ detailPhone?.connection?.mobile_nfc || 'Không có' }}</td>
         </tr>
         <tr>
           <td>Thẻ SIM</td>
-          <td>{{ detailPhone.connection.sim || 'Không có' }}</td>
+          <td>{{ detailPhone?.connection?.sim || 'Không có' }}</td>
         </tr>
         <tr>
           <td>Hệ điều hành</td>
-          <td>{{ detailPhone.connection.os || 'Không có' }}</td>
+          <td>{{ detailPhone?.connection?.os || 'Không có' }}</td>
         </tr>
         <tr>
           <td>WLAN</td>
-          <td>{{ detailPhone.connection.wlan || 'Không có' }}</td>
+          <td>{{ detailPhone?.connection?.wlan || 'Không có' }}</td>
         </tr>
         <tr>
           <td>Hỗ trợ mạng</td>
-          <td>{{ detailPhone.connection.network || 'Không có' }}</td>
+          <td>{{ detailPhone?.connection?.network || 'Không có' }}</td>
         </tr>
         <tr>
           <td>Hỗ trợ Bluetooth</td>
-          <td>{{ detailPhone.connection.bluetooth || 'Không có' }}</td>
+          <td>{{ detailPhone?.connection?.bluetooth || 'Không có' }}</td>
         </tr>
         <tr>
           <td>GPS</td>
-          <td>{{ detailPhone.connection.gps || 'Không có' }}</td>
+          <td>{{ detailPhone?.connection?.gps || 'Không có' }}</td>
         </tr>
       </table>
     </div>
@@ -200,15 +210,15 @@ onMounted(() => {
       <table>
         <tr>
           <td>RAM</td>
-          <td>{{ detailPhone.storage.ram || 'Không có' }}</td>
+          <td>{{ detailPhone?.storage?.ram || 'Không có' }}</td>
         </tr>
         <tr>
           <td>Bộ nhớ trong</td>
-          <td>{{ detailPhone.storage.internalMemory || 'Không có' }}</td>
+          <td>{{ detailPhone?.storage?.internalMemory || 'Không có' }}</td>
         </tr>
         <tr>
           <td>Khe cắm thẻ nhớ</td>
-          <td>{{ detailPhone.storage.memoryCardSlot || 'Không có' }}</td>
+          <td>{{ detailPhone?.storage?.memoryCardSlot || 'Không có' }}</td>
         </tr>
       </table>
     </div>
@@ -218,15 +228,15 @@ onMounted(() => {
       <table>
         <tr>
           <td>Pin</td>
-          <td>{{ detailPhone.battery.battery || 'Không có' }}</td>
+          <td>{{ detailPhone?.battery?.battery || 'Không có' }}</td>
         </tr>
         <tr>
           <td>Công nghệ sạc</td>
-          <td v-html="detailPhone.battery.charginTechnology || 'Không có'"></td>
+          <td v-html="detailPhone?.battery?.charginTechnology || 'Không có'"></td>
         </tr>
         <tr>
           <td>Cổng sạc</td>
-          <td>{{ detailPhone.battery.port || 'Không có' }}</td>
+          <td>{{ detailPhone?.battery?.port || 'Không có' }}</td>
         </tr>
       </table>
     </div>
@@ -236,15 +246,15 @@ onMounted(() => {
       <table>
         <tr>
           <td>Kích thước</td>
-          <td>{{ detailPhone.design.size || 'Không có' }}</td>
+          <td>{{ detailPhone?.design?.size || 'Không có' }}</td>
         </tr>
         <tr>
           <td>Trọng lượng</td>
-          <td>{{ detailPhone.design.weight || 'Không có' }}</td>
+          <td>{{ detailPhone?.design?.weight || 'Không có' }}</td>
         </tr>
         <tr>
           <td>Chất liệu</td>
-          <td>{{ detailPhone.design.material || 'Không có' }}</td>
+          <td>{{ detailPhone?.design?.material || 'Không có' }}</td>
         </tr>
       </table>
     </div>
@@ -254,31 +264,31 @@ onMounted(() => {
       <table>
         <tr>
           <td>Làm mát</td>
-          <td>{{ detailPhone.otherInfor.cooler || 'Không có' }}</td>
+          <td>{{ detailPhone?.otherInfor?.cooler || 'Không có' }}</td>
         </tr>
         <tr>
           <td>Chỉ số kháng nước, bụi</td>
-          <td>{{ detailPhone.otherInfor.resistanceIndex || 'Không có' }}</td>
+          <td>{{ detailPhone?.otherInfor?.resistanceIndex || 'Không có' }}</td>
         </tr>
         <tr>
           <td>Công nghệ tiện ích</td>
-          <td>{{ detailPhone.otherInfor.tech || 'Không có' }}</td>
+          <td>{{ detailPhone?.otherInfor?.tech || 'Không có' }}</td>
         </tr>
         <tr>
           <td>Công nghệ âm thanh</td>
-          <td v-html="detailPhone.otherInfor.soundTech || 'Không có'"></td>
+          <td v-html="detailPhone?.otherInfor?.soundTech || 'Không có'"></td>
         </tr>
         <tr>
           <td>Các loại tiện ích</td>
-          <td v-html="detailPhone.otherInfor.utilities || 'Không có'"></td>
+          <td v-html="detailPhone?.otherInfor?.utilities || 'Không có'"></td>
         </tr>
         <tr>
           <td>Các loại cảm biến</td>
-          <td>{{ detailPhone.otherInfor.sensor || 'Không có' }}</td>
+          <td>{{ detailPhone?.otherInfor?.sensor || 'Không có' }}</td>
         </tr>
         <tr>
           <td>Ngày phát hành</td>
-          <td>{{ detailPhone.releaseDate || 'Không có' }}</td>
+          <td>{{ detailPhone?.releaseDate || 'Không có' }}</td>
         </tr>
       </table>
     </div>

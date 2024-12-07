@@ -8,9 +8,12 @@ import AppContentHeading from '../AppContentHeading.vue';
 import AppBrand from '../AppBrand.vue';
 import AppButton from '../AppButton.vue';
 
+import { usePhoneStore } from '@/stores/phoneStore';
+
 // Đăng ký ScrollTrigger
 gsap.registerPlugin(ScrollTrigger);
 
+const phoneStore = usePhoneStore();
 const brandList = [
   {
     brand: 'Iphone',
@@ -40,6 +43,17 @@ const viewAllBrands = () => {
   router.push('brands');
 };
 
+const searchPhonesByBrand = async (brandName) => {
+  await phoneStore.getPhonesByBrand(brandName);
+
+  router.push({
+    path: 'search',
+    query: {
+      brand: brandName
+    }
+  });
+};
+
 onMounted(() => {
   gsap.from(brandListRef.value, {
     opacity: 0,
@@ -64,11 +78,17 @@ onMounted(() => {
         voluptatibus, velit id consequuntur eaque ratione harum! Perferendis, quos.
       </template>
       <template #action>
-        <AppButton show-icon="true" @click="viewAllBrands"> Xem tất cả </AppButton>
+        <AppButton :show-icon="true" @click="viewAllBrands"> Xem tất cả </AppButton>
       </template>
     </AppContentHeading>
     <div class="brand-list" ref="brandListRef">
-      <AppBrand v-for="(brand, index) in brandList" :key="index" :brand="brand" :width="`24%`" />
+      <AppBrand
+        v-for="(brand, index) in brandList"
+        :key="index"
+        :brand="brand"
+        :width="`24%`"
+        @click="searchPhonesByBrand(brand.brand)"
+      />
     </div>
   </div>
 </template>

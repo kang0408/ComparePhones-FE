@@ -1,6 +1,7 @@
 <script setup>
 import AppButton from './AppButton.vue';
 import { defineProps, ref } from 'vue';
+import { useRouter } from 'vue-router';
 
 import { usePhoneCompareStore } from '@/stores/phoneCompareStore';
 
@@ -9,6 +10,7 @@ const props = defineProps({
     type: Array
   }
 });
+const router = useRouter();
 const phoneCompareStore = usePhoneCompareStore();
 const cellphone_url = import.meta.env.VITE_CELLPHONES_URL;
 const hidden = ref(false);
@@ -39,7 +41,7 @@ const hiddenCompareProp = () => {
         <p>{{ phone.name }}</p>
       </div>
     </div>
-    <AppButton class="custome-btn">So sánh</AppButton>
+    <AppButton class="custome-btn" @click="router.push('/compare')">So sánh</AppButton>
   </div>
 </template>
 

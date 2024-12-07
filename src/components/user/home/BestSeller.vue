@@ -1,19 +1,31 @@
 <script setup>
 import { gsap } from 'gsap';
 import ScrollTrigger from 'gsap/ScrollTrigger';
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, onBeforeMount } from 'vue';
 
-import phoneList from '@/stores/phoneList';
+// import phoneList from '@/stores/phoneList';
 import AppContentHeading from '../AppContentHeading.vue';
 import AppPhone from '../AppPhone.vue';
+
+import { usePhoneStore } from '@/stores/phoneStore';
 
 // Đăng ký ScrollTrigger
 gsap.registerPlugin(ScrollTrigger);
 
-const randomPhoneList = phoneList.slice(0, 8);
+const phoneStore = usePhoneStore();
+
+const phoneList = ref([]);
+const randomIndex = ref(0);
+const randomPhoneList = ref([]);
 const bestSellerListRef = ref(null);
 
-onMounted(() => {
+onMounted(async () => {
+  await phoneStore.getPhone();
+  phoneList.value = phoneStore.allPhones;
+
+  randomIndex.value = Math.floor(Math.random() * phoneList.value.length);
+  randomPhoneList.value = phoneList.value.slice(randomIndex.value, randomIndex.value + 8);
+
   gsap.from(bestSellerListRef.value, {
     opacity: 0,
     y: 400,
@@ -39,7 +51,7 @@ onMounted(() => {
         v-for="phone in randomPhoneList"
         :key="phone.id"
         :phone="phone"
-        style="width: 22%"
+        style="width: 22%; height: 500px"
       />
     </div>
   </div>

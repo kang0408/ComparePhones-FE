@@ -16,7 +16,7 @@ const cellphone_url = import.meta.env.VITE_CELLPHONES_URL;
     <div class="img-wrap">
       <img :src="`${cellphone_url}/${props.brand.img}`" alt="" />
     </div>
-    <router-link>{{ props.brand.brand }}</router-link>
+    <router-link to="">{{ props.brand.brand }}</router-link>
   </div>
 </template>
 

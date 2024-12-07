@@ -8,7 +8,7 @@ const router = useRouter();
     <div class="logo" @click="router.push('/')">
       <img src="../../assets/logo.png" alt="" />
     </div>
-    <p class="title">Mobile Manager</p>
+    <p class="title">Quản lý điện thoại</p>
     <!-- <div class="avatar">
       <img src="../assets/avatar.jpeg" alt="" />
     </div> -->
@@ -24,6 +24,9 @@ header {
   align-items: center;
   border-bottom: 2px solid $color-primary;
   background: $color-primary;
+  position: relative;
+  z-index: 10;
+  height: 95px;
   .logo {
     width: 60px;
     height: 60px;
@@ -40,6 +43,7 @@ header {
     font-weight: 700;
     margin-top: 0;
     margin-left: 0;
+    margin-bottom: 0 !important;
     color: #fff;
   }
   .avatar {

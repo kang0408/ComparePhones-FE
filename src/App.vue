@@ -2,7 +2,8 @@
 import { NModalProvider, NConfigProvider, NMessageProvider, NDialogProvider } from 'naive-ui';
 const themeOverrides = {
   common: {
-    primaryColor: '#3c85fe'
+    primaryColor: '#3c85fe',
+    primaryColorHover: '#3c85fe'
   }
 };
 </script>

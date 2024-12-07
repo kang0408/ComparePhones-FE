@@ -1,12 +1,16 @@
 import { defineStore } from 'pinia';
+import { usePhoneStore } from './phoneStore';
+
+const phoneStore = usePhoneStore();
 
 export const usePhoneCompareStore = defineStore('phoneCompare', {
   state: () => ({
     phoneCompareList: []
   }),
   actions: {
-    addPhoneCompare(phone) {
-      return this.phoneCompareList.push(phone);
+    async addPhoneCompare(phone) {
+      const foundPhone = await phoneStore.getDetailPhoneById(phone.id);
+      return this.phoneCompareList.push(foundPhone);
     },
     removePhoneCompare(name) {
       const index = this.phoneCompareList.findIndex((item) => item.name === name);

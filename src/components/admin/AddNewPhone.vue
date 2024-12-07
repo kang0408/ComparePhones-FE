@@ -15,7 +15,7 @@ const phone = reactive({
   name: '',
   brand: '',
   releaseDate: '',
-  cost: '',
+  cost: 0,
   img: '',
   color: '',
   screenRequestDto: {
@@ -80,7 +80,7 @@ const closeAddPhoneSuccessHandler = () => {
 function convertNullToString(obj) {
   for (const key in obj) {
     if (obj[key] === '') {
-      obj[key] = 'string';
+      obj[key] = 'Không có';
     } else if (typeof obj[key] === 'object' && obj[key] !== '') {
       convertNullToString(obj[key]); // Đệ quy xử lý các đối tượng con
     }
@@ -91,11 +91,10 @@ function convertNullToString(obj) {
 const newPhone = ref({});
 const addPhoneHandler = async () => {
   newPhone.value = convertNullToString({ ...phone });
-  console.log(newPhone.value);
   try {
     const res = await phoneStore.addNewPhone(newPhone.value);
 
-    if (res) {
+    if (res.data.status === 'SUCCESS') {
       message.success('Thêm mới thành công!');
       closeAddPhoneSuccessHandler();
     }

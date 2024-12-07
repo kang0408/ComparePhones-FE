@@ -16,11 +16,17 @@ const props = defineProps({
 });
 const cellphone_url = import.meta.env.VITE_CELLPHONES_URL;
 
+const formatTooltip = (value) => {
+  let number = parseInt(value, 10);
+  return new Intl.NumberFormat('vi-VN').format(number) + 'đ';
+};
+
 const router = useRouter();
 const viewDetailPhone = () => {
   router.push({
     name: 'Phone',
-    params: { name: props.phone.name }
+    params: { name: props.phone.name },
+    query: { id: props.phone.id }
   });
 };
 const addComparePhone = (phone) => {
@@ -30,7 +36,8 @@ const addComparePhone = (phone) => {
   } else {
     phoneCompareStore.addPhoneCompare({
       img: phone.img,
-      name: phone.name
+      name: phone.name,
+      id: phone.id
     });
     message.success('Thêm điện thoại thành công');
   }
@@ -44,9 +51,9 @@ const addComparePhone = (phone) => {
     </div>
     <p class="brand">{{ phone.brand }}</p>
     <p class="name" @click="viewDetailPhone">{{ phone.name }}</p>
-    <p class="price" :class="{ 'not-price': phone.cost === 'Not price yet' }">
-      <span v-if="phone.cost === 'Not price yet'">{{ phone.cost }}</span>
-      <span v-else>{{ phone.cost }}đ</span>
+    <p class="price" :class="{ 'not-price': phone.cost === -1 }">
+      <span v-if="phone.cost === -1">Không có giá</span>
+      <span v-else>{{ formatTooltip(phone.cost) }}</span>
     </p>
     <AppButton class="custome-btn" @click="addComparePhone(phone)">So sánh</AppButton>
   </div>
@@ -76,7 +83,7 @@ const addComparePhone = (phone) => {
   }
   .brand {
     color: #5b5c60;
-    font-size: 20px;
+    font-size: 18px;
     font-weight: 400;
     margin-top: 16px;
     cursor: pointer;
@@ -101,7 +108,7 @@ const addComparePhone = (phone) => {
   .price {
     font-weight: 500;
     color: #fff;
-    font-size: 20px;
+    font-size: 18px;
     display: inline-block;
     background: $color-primary;
     padding: 0 16px;

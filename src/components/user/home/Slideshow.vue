@@ -3,33 +3,53 @@ import { NCarousel, NImage } from 'naive-ui';
 import { useRouter } from 'vue-router';
 import { gsap } from 'gsap';
 import ScrollTrigger from 'gsap/ScrollTrigger';
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, onBeforeMount } from 'vue';
 
-import phoneList from '@/stores/phoneList';
+// import phoneList from '@/stores/phoneList';
 import AppButton from '../AppButton.vue';
 
 import leftArrow from '@assets/icons/leftArrow.svg';
 import rightArrow from '@assets/icons/rightArrow.svg';
 
+import { usePhoneStore } from '@/stores/phoneStore';
+
 // Đăng ký ScrollTrigger
 gsap.registerPlugin(ScrollTrigger);
 
+const phoneStore = usePhoneStore();
+
 // Mock dữ liệu
-const randomIndex = Math.floor(Math.random() * phoneList.length);
-const randomPhoneList = phoneList.slice(randomIndex, randomIndex + 5);
+const phoneList = ref([]);
+const randomIndex = ref(0);
+const randomPhoneList = ref([]);
 const cellphone_url = import.meta.env.VITE_CELLPHONES_URL;
 
 // Router
 const router = useRouter();
-const viewDetailPhone = (phoneName) => {
+const viewDetailPhone = (phoneName, phoneId) => {
   router.push({
     name: 'Phone',
-    params: { name: phoneName }
+    params: { name: phoneName },
+    query: {
+      id: phoneId
+    }
   });
 };
 
+const formatTooltip = (value) => {
+  let number = parseInt(value, 10);
+  return new Intl.NumberFormat('vi-VN').format(number) + 'đ';
+};
+
+// Slide
 const slides = ref(null);
-onMounted(() => {
+onMounted(async () => {
+  await phoneStore.getPhone();
+  phoneList.value = phoneStore.allPhones;
+
+  randomIndex.value = Math.floor(Math.random() * phoneList.value.length);
+  randomPhoneList.value = phoneList.value.slice(randomIndex.value, randomIndex.value + 7);
+
   gsap.from(slides.value, {
     opacity: 0,
     duration: 2,
@@ -45,8 +65,11 @@ onMounted(() => {
         <div class="phone-infor">
           <p class="name">{{ phone.name }}</p>
           <p class="brand">Brand: {{ phone.brand }}</p>
-          <p class="cost">Cost: {{ phone.cost }}</p>
-          <AppButton @click="viewDetailPhone(phone.name)">Xem chi tiết</AppButton>
+          <p class="cost">
+            Cost: <span v-if="phone.cost === -1">Không có giá</span
+            ><span v-else>{{ formatTooltip(phone.cost) }}</span>
+          </p>
+          <AppButton @click="viewDetailPhone(phone.name, phone.id)">Xem chi tiết</AppButton>
         </div>
         <div class="phone-img">
           <n-image class="n-image-custom" :src="`${cellphone_url}/${phone.img}`" />

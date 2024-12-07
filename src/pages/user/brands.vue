@@ -11,14 +11,29 @@ import AppBrand from '@/components/user/AppBrand.vue';
 
 import leftArrow from '@assets/icons/leftArrow.svg';
 
+import { usePhoneStore } from '@/stores/phoneStore';
+
 // Đăng ký ScrollTrigger
 gsap.registerPlugin(ScrollTrigger);
 
+const phoneStore = usePhoneStore();
 const brands = brandList;
 const brandListRef = ref(null);
 const router = useRouter();
 
-onMounted(() => {
+const searchPhonesByBrand = async (brandName) => {
+  await phoneStore.getPhonesByBrand(brandName);
+
+  router.push({
+    path: 'search',
+    query: {
+      brand: brandName
+    }
+  });
+};
+
+onMounted(async () => {
+  await phoneStore.getAllBrand();
   gsap.from(brandListRef.value, {
     opacity: 0,
     y: 400,
@@ -42,7 +57,12 @@ onMounted(() => {
       </template>
     </AppContentHeading>
     <div class="brand-list" ref="brandListRef">
-      <AppBrand v-for="(brand, index) in brands" :key="index" :brand="brand" />
+      <AppBrand
+        v-for="(brand, index) in brands"
+        :key="index"
+        :brand="brand"
+        @click="searchPhonesByBrand(brand.brand)"
+      />
     </div>
   </div>
 </template>
