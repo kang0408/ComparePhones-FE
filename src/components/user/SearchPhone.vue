@@ -77,8 +77,6 @@ const formatCurrency = (value) => {
 
 const searchValue = ref('');
 const searchPhoneHandler = async () => {
-  router.push('/search');
-
   if (phoneStore.filterPhones.length > 0) {
     phoneStore.getFilterPhonesHandler(searchValue.value);
     filteredData.value = phoneStore.allPhones;
@@ -90,19 +88,20 @@ const searchPhoneHandler = async () => {
 
 watch(searchValue, async () => {
   if (searchValue.value === '') {
-    // await phoneStore.getPhone();
     filteredData.value = phoneStore.filterPhones;
   }
 });
 
 const filterPhoneHandler = async () => {
-  router.push('/search');
-
   await phoneStore.getPhonesByPriceRage(priceRange.value[0], priceRange.value[1]);
   if (brandsValue.value.length > 0) {
     await phoneStore.getFilterPhones(brandsValue.value);
 
     filteredData.value = phoneStore.filterPhones;
+    searchValue.value = '';
+  } else {
+    await phoneStore.getPhone();
+    filteredData.value = phoneStore.allPhones;
     searchValue.value = '';
   }
 };
@@ -116,12 +115,13 @@ const resetFilter = async () => {
 };
 
 onMounted(async () => {
-  if (route.query.brand != '') {
-    await phoneStore.getPhonesByBrand(route.query.brand);
-  } else {
+  if (!route.query.brand) {
     await phoneStore.getPhone();
+  } else {
+    await phoneStore.getPhonesByBrand(route.query.brand);
   }
   filteredData.value = phoneStore.allPhones;
+
   gsap.from(searchInputRef.value, {
     opacity: 0,
     duration: 1.5,
