@@ -116,7 +116,7 @@ const resetFilter = async () => {
 };
 
 onMounted(async () => {
-  if (route.query) {
+  if (route.query.brand != '') {
     await phoneStore.getPhonesByBrand(route.query.brand);
   } else {
     await phoneStore.getPhone();

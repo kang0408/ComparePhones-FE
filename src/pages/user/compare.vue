@@ -152,9 +152,11 @@ onMounted(() => {
           </tr>
           <tr>
             <td>Camera trước</td>
-            <td v-for="(phone, index) in phoneList" :key="index">
-              {{ phone.camera.selfieCamera || 'Không có' }}
-            </td>
+            <td
+              v-for="(phone, index) in phoneList"
+              :key="index"
+              v-html="phone.camera.selfieCamera || 'Không có'"
+            ></td>
           </tr>
         </table>
       </div>
@@ -206,9 +208,11 @@ onMounted(() => {
           </tr>
           <tr>
             <td>WLAN</td>
-            <td v-for="(phone, index) in phoneList" :key="index">
-              {{ phone.connection.wlan || 'Không có' }}
-            </td>
+            <td
+              v-for="(phone, index) in phoneList"
+              :key="index"
+              v-html="phone.connection.wlan || 'Không có'"
+            ></td>
           </tr>
           <tr>
             <td>Hỗ trợ mạng</td>
@@ -286,9 +290,11 @@ onMounted(() => {
         <table>
           <tr>
             <td>Kích thước</td>
-            <td v-for="(phone, index) in phoneList" :key="index">
-              {{ phone.design.size || 'Không có' }}
-            </td>
+            <td
+              v-for="(phone, index) in phoneList"
+              :key="index"
+              v-html="phone.design.size || 'Không có'"
+            ></td>
           </tr>
           <tr>
             <td>Trọng lượng</td>
@@ -322,9 +328,11 @@ onMounted(() => {
           </tr>
           <tr>
             <td>Công nghệ tiện ích</td>
-            <td v-for="(phone, index) in phoneList" :key="index">
-              {{ phone.otherInfor.tech || 'Không có' }}
-            </td>
+            <td
+              v-for="(phone, index) in phoneList"
+              :key="index"
+              v-html="phone.otherInfor.tech || 'Không có'"
+            ></td>
           </tr>
           <tr>
             <td>Công nghệ âm thanh</td>
