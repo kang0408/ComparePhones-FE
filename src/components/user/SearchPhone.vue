@@ -79,7 +79,6 @@ const searchValue = ref('');
 const searchPhoneHandler = async () => {
   router.push('/search');
 
-  console.log(phoneStore.filterPhones.length);
   if (phoneStore.filterPhones.length > 0) {
     phoneStore.getFilterPhonesHandler(searchValue.value);
     filteredData.value = phoneStore.allPhones;

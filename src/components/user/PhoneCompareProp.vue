@@ -15,7 +15,6 @@ const phoneCompareStore = usePhoneCompareStore();
 const cellphone_url = import.meta.env.VITE_CELLPHONES_URL;
 const hidden = ref(false);
 
-console.log(props.phoneList);
 const delPhone = (name) => {
   phoneCompareStore.removePhoneCompare(name);
 };

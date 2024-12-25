@@ -25,7 +25,6 @@ const selectOption = (option) => {
 // Đóng setting khi bấm ra ngoài
 const handleClickOutside = (event) => {
   if (settingRef.value && !settingRef.value.contains(event.target)) {
-    console.log(event.target);
     toggle.value = false;
   }
 };

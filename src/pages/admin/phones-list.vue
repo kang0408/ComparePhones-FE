@@ -188,8 +188,8 @@ const viewInforPhone = async (row) => {
 
 const showEditPhone = ref(false);
 const editPhone = async (row) => {
-  await phoneStore.getDetailPhone(row.name);
-  detailPhone.value = phoneStore.allPhones;
+  await phoneStore.getDetailPhoneById(row.id);
+  detailPhone.value = phoneStore.detailPhone;
   showEditPhone.value = true;
 };
 
@@ -279,7 +279,6 @@ const fetchData = async () => {
   brandList.value = phoneStore.allBrands;
   const brandColumn = phoneColumns.find((col) => col.key === 'brand');
   brandColumn.filterOptions = brandList.value;
-  console.log(brandColumn.filterOptions);
 };
 
 onMounted(() => {

@@ -21,7 +21,6 @@ const closeEditPhoneSuccessHandler = () => {
 
 const editedPhone = ref({});
 const editPhoneHandler = async () => {
-  console.log(editedPhone.value);
   try {
     const res = await phoneStore.updatePhone(editedPhone.value);
     if (res) {
@@ -33,10 +32,7 @@ const editPhoneHandler = async () => {
   }
 };
 onMounted(async () => {
-  await phoneStore.getDetailPhoneById(props.detailPhone.id);
-  editedPhone.value = phoneStore.detailPhone;
-
-  console.log(editedPhone.value);
+  editedPhone.value = { ...props.detailPhone, cost: String(props.detailPhone.cost) };
 });
 </script>
 
@@ -58,7 +54,7 @@ onMounted(async () => {
         <n-input v-model:value="editedPhone.releaseDate" type="text" @keydown.enter.prevent />
       </n-form-item>
       <n-form-item path="cost" label="Giá tiền">
-        <n-input v-model:value="editedPhone.cost" type="text" @keydown.enter.prevent />
+        <n-input v-model:value="editedPhone.cost" type="Number" @keydown.enter.prevent />
       </n-form-item>
     </div>
     <!-- Màn hình -->

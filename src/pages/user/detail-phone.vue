@@ -28,7 +28,6 @@ const phoneCover = ref(null);
 const phoneInfor = ref(null);
 
 const addComparePhone = (phone) => {
-  console.log(phone);
   if (phoneCompareStore.phoneCompareList.length === 3) {
     message.info('Chỉ có thể so sánh tối đa 3 điện thoại');
     return;

@@ -29,8 +29,6 @@ onMounted(async () => {
 
   await phoneStore.getTotalPhoneByYear();
   phoneYear.value = phoneStore.phonesByYear;
-
-  console.log(phoneYear.value);
 });
 </script>
 

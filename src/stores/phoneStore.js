@@ -28,13 +28,10 @@ export const usePhoneStore = defineStore('phone', {
       const name = phoneName.toLocaleLowerCase();
       this.allPhones = [];
       this.filterPhones.forEach((phone) => {
-        // console.log(phone.name.toLocaleLowerCase());
-        console.log(phone.name.toLocaleLowerCase().includes(name));
         if (phone.name.toLocaleLowerCase().includes(name)) {
           this.allPhones.push(phone);
         }
       });
-      console.log(this.allPhones);
     },
     async getFilterPhones(brands) {
       const brandsStr = brands.join(' ').toLocaleLowerCase();
@@ -159,7 +156,6 @@ export const usePhoneStore = defineStore('phone', {
           params: { lowestPrice: range.lowestPrice, highestPrice: range.highestPrice }
         });
 
-        console.log();
         const total = {
           range: `${range.lowestPrice !== -1 ? formatCurrency(range.lowestPrice) + '-' + formatCurrency(range.highestPrice) : 'Không có giá'}`,
           count: response.data.data.length
@@ -184,9 +180,6 @@ export const usePhoneStore = defineStore('phone', {
       years.forEach((y) => {
         let cnt = 0;
         this.allPhones.forEach((phone) => {
-          // if (phone.releaseDate !== null) {
-          //   console.log(phone.releaseDate.split('/').join(' ').includes(y.year));
-          // }
           if (
             phone.releaseDate !== null &&
             phone.releaseDate.split('/').join(' ').includes(y.year)
@@ -205,7 +198,6 @@ export const usePhoneStore = defineStore('phone', {
       try {
         const response = await api.put('/phone', editedPhone);
 
-        console.log(response);
         return response;
       } catch (error) {
         return error;
