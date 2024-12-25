@@ -1,6 +1,19 @@
 <script setup>
 import { useRouter } from 'vue-router';
+import { useUserStore } from '@/stores/userStore';
+import { useMessage } from 'naive-ui';
+
+import AppButton from '../user/AppButton.vue';
+
 const router = useRouter();
+const userStore = useUserStore();
+const message = useMessage();
+
+const signOutHandler = () => {
+  userStore.logout();
+  router.push('/sign-in');
+  message.success('Đăng xuất thành công!');
+};
 </script>
 
 <template>
@@ -9,9 +22,7 @@ const router = useRouter();
       <img src="../../assets/logo.png" alt="" />
     </div>
     <p class="title">Quản lý điện thoại</p>
-    <!-- <div class="avatar">
-      <img src="../assets/avatar.jpeg" alt="" />
-    </div> -->
+    <AppButton class="sign-out-btn" @click="signOutHandler">Đăng xuất</AppButton>
   </header>
 </template>
 
@@ -19,7 +30,6 @@ const router = useRouter();
 header {
   display: flex;
   padding: 16px 32px;
-  // justify-content: space-between;
   gap: 32px;
   align-items: center;
   border-bottom: 2px solid $color-primary;
@@ -46,15 +56,11 @@ header {
     margin-bottom: 0 !important;
     color: #fff;
   }
-  .avatar {
-    width: 60px;
-    height: 60px;
-    img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      border-radius: 50%;
-    }
+  .sign-out-btn {
+    position: absolute;
+    right: 32px;
+    background-color: #fff;
+    color: #000;
   }
 }
 </style>

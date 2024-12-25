@@ -1,8 +1,10 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, reactive } from 'vue';
 import { gsap } from 'gsap';
 import ScrollTrigger from 'gsap/ScrollTrigger';
 import { useRouter } from 'vue-router';
+import { useUserStore } from '@/stores/userStore';
+import { useMessage } from 'naive-ui';
 
 import AppButton from '@/components/user/AppButton.vue';
 import leftArrow from '@assets/icons/leftArrow.svg';
@@ -10,9 +12,26 @@ import leftArrow from '@assets/icons/leftArrow.svg';
 // Đăng ký ScrollTrigger
 gsap.registerPlugin(ScrollTrigger);
 
+const userStore = useUserStore();
 const router = useRouter();
 const signinImg = ref(null);
 const formRef = ref(null);
+const message = useMessage();
+
+const body = reactive({
+  username: '',
+  password: ''
+});
+
+const signInHandler = async () => {
+  const result = await userStore.login(body);
+  if (result) {
+    message.success('Đăng nhập thành công!');
+    router.push({ name: 'Dashboard' });
+  } else {
+    message.error('Đăng nhập thất bại!');
+  }
+};
 
 onMounted(() => {
   gsap.from(signinImg.value, {
@@ -39,29 +58,29 @@ onMounted(() => {
     <div class="signin-img-wrap" ref="signinImg">
       <img src="../../assets/login.png" alt="" />
     </div>
-    <form ref="formRef">
+    <form ref="formRef" @submit.prevent="signInHandler">
       <div class="form-heading">
         <p class="title">Đăng nhập</p>
         <p class="desc">Hãy nhập đầy đủ tài khoản và mật khẩu để đăng nhập!</p>
       </div>
       <div class="form-wrap">
         <div>
-          <input type="text" id="email" placeholder="Tài khoản" />
+          <input type="text" id="email" placeholder="Tài khoản" v-model="body.username" />
         </div>
         <div>
-          <input type="password" id="password" placeholder="Mật khẩu" />
+          <input type="password" id="password" placeholder="Mật khẩu" v-model="body.password" />
         </div>
         <div class="remember-me">
           <div>
             <input type="checkbox" id="remember" />
             <label for="remember">Remember me</label>
           </div>
-          <router-link :to="{ name: 'Forgot password' }">Quên mật khẩu</router-link>
+          <!-- <router-link :to="{ name: 'Forgot password' }">Quên mật khẩu</router-link> -->
         </div>
-        <p>
+        <!-- <p>
           Bạn chưa có tài khoản? <router-link :to="{ name: 'Sign up' }">Đăng ký ngay</router-link>
-        </p>
-        <AppButton @click="router.push({ name: 'Home' })">Đăng nhập</AppButton>
+        </p> -->
+        <AppButton>Đăng nhập</AppButton>
       </div>
     </form>
   </div>

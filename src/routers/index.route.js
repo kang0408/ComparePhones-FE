@@ -71,7 +71,7 @@ const routes = [
   }
 ];
 
-const router = createRouter({
+export const router = createRouter({
   history: createWebHistory(),
   routes,
   scrollBehavior(to, from, savedPosition) {
@@ -85,4 +85,23 @@ const router = createRouter({
   }
 });
 
-export default router;
+const whiteListByPath = ['/sign-in'];
+
+const whiteListByName = ['Home', 'Brands', 'Phone', 'Search', 'Compare'];
+
+const isWhiteList = (to) => {
+  return whiteListByPath.includes(to.path) || whiteListByName.includes(to.name);
+};
+
+const navigationGuard = (router) => {
+  router.beforeEach(async (to, _from) => {
+    if (!localStorage.getItem('token')) {
+      if (isWhiteList(to)) return true;
+      return '/sign-in';
+    }
+
+    if (to.path === '/sign-in') return '/';
+  });
+};
+
+navigationGuard(router);
