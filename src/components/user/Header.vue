@@ -70,7 +70,6 @@ header {
   padding: 36px 200px;
   font-size: 18px;
   justify-content: space-between;
-  // background: #eff5f9;
   .header--left {
     display: flex;
     align-items: center;
@@ -79,8 +78,15 @@ header {
       width: 50px;
       height: 50px;
       border-radius: 50%;
+      -webkit-box-shadow: 0px 7px 15px -3px rgba(156, 156, 156, 1);
+      -moz-box-shadow: 0px 7px 15px -3px rgba(156, 156, 156, 1);
+      box-shadow: 0px 7px 15px -3px rgba(156, 156, 156, 1);
+      cursor: pointer;
+      transition: all 0.3s ease-in-out;
+      &:hover {
+        transform: scale(1.1);
+      }
       img {
-        border: 1px solid;
         border-radius: 50%;
         width: 100%;
         height: 100%;
