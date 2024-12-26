@@ -8,6 +8,9 @@ import { usePhoneCompareStore } from '@/stores/phoneCompareStore';
 import AppContentHeading from '@/components/user/AppContentHeading.vue';
 import SearchPhone from '@/components/user/SearchPhone.vue';
 
+import upArrow from '@assets/icons/up-arrow.svg';
+import downArrow from '@assets/icons/down-arrow.svg';
+
 // import phoneList from '@/stores/phoneList';
 
 const phoneCompareStore = usePhoneCompareStore();
@@ -34,6 +37,34 @@ watch(phoneCompareList.value, () => {
   phoneListEmpty.value = 3 - phoneCompareList.value.length;
   phoneList.value = phoneCompareList.value;
 });
+
+function extractNumericValue(value) {
+  if (typeof value === 'string') {
+    const match = value.match(/[\d.]+/); // Trích xuất số (bao gồm số thập phân)
+    return match ? parseFloat(match[0]) : 0; // Chuyển thành số thực
+  }
+  return typeof value === 'number' ? value : 0; // Nếu đã là số, trả về trực tiếp
+}
+
+// Tìm giá trị lớn nhất của thuộc tính được chọn
+const maxValue = (prop) => {
+  console.log(
+    Math.max(
+      ...phoneList.value.map((product) => {
+        const keys = prop.split('.'); // Tách chuỗi thuộc tính lồng nhau
+        const value = keys.reduce((acc, key) => acc?.[key], product); // Lấy giá trị
+        return extractNumericValue(value); // Chuyển đổi giá trị sang số trước khi so sánh
+      })
+    )
+  );
+  return Math.max(
+    ...phoneList.value.map((product) => {
+      const keys = prop.split('.'); // Tách chuỗi thuộc tính lồng nhau
+      const value = keys.reduce((acc, key) => acc?.[key], product); // Lấy giá trị
+      return extractNumericValue(value); // Chuyển đổi giá trị sang số trước khi so sánh
+    })
+  );
+};
 
 onMounted(() => {
   phoneListEmpty.value = 3 - phoneCompareList.value.length;
@@ -84,6 +115,10 @@ onMounted(() => {
             <td v-for="(phone, index) in phoneList" :key="index">
               <span v-if="phone.cost === -1">Không có giá</span>
               <span v-else>{{ formatTooltip(phone.cost) }}</span>
+              <span class="arrow">
+                <img v-if="extractNumericValue(phone.cost) === maxValue('cost')" :src="upArrow" />
+                <img v-else :src="downArrow" />
+              </span>
             </td>
           </tr>
           <tr>
@@ -102,6 +137,13 @@ onMounted(() => {
             <td>Kích thước màn hình</td>
             <td v-for="(phone, index) in phoneList" :key="index">
               {{ phone.screen.size || 'Không có' }}
+              <span class="arrow">
+                <img
+                  v-if="extractNumericValue(phone.screen.size) === maxValue('screen.size')"
+                  :src="upArrow"
+                />
+                <img v-else :src="downArrow" />
+              </span>
             </td>
           </tr>
           <tr>
@@ -114,6 +156,15 @@ onMounted(() => {
             <td>Độ phân giải màn hình</td>
             <td v-for="(phone, index) in phoneList" :key="index">
               {{ phone.screen.resolution || 'Không có' }}
+              <span class="arrow">
+                <img
+                  v-if="
+                    extractNumericValue(phone.screen.resolution) === maxValue('screen.resolution')
+                  "
+                  :src="upArrow"
+                />
+                <img v-else :src="downArrow" />
+              </span>
             </td>
           </tr>
           <tr>
@@ -128,6 +179,16 @@ onMounted(() => {
             <td>Tần số quét</td>
             <td v-for="(phone, index) in phoneList" :key="index">
               {{ phone.screen.scanFrequency || 'Không có' }}
+              <span class="arrow">
+                <img
+                  v-if="
+                    extractNumericValue(phone.screen.scanFrequency) ===
+                    maxValue('screen.scanFrequency')
+                  "
+                  :src="upArrow"
+                />
+                <img v-else :src="downArrow" />
+              </span>
             </td>
           </tr>
           <tr>
@@ -242,12 +303,29 @@ onMounted(() => {
             <td>RAM</td>
             <td v-for="(phone, index) in phoneList" :key="index">
               {{ phone.storage.ram || 'Không có' }}
+              <span class="arrow">
+                <img
+                  v-if="extractNumericValue(phone.storage.ram) === maxValue('storage.ram')"
+                  :src="upArrow"
+                />
+                <img v-else :src="downArrow" />
+              </span>
             </td>
           </tr>
           <tr>
             <td>Bộ nhớ trong</td>
             <td v-for="(phone, index) in phoneList" :key="index">
               {{ phone.storage.internalMemory || 'Không có' }}
+              <span class="arrow">
+                <img
+                  v-if="
+                    extractNumericValue(phone.storage.internalMemory) ===
+                    maxValue('storage.internalMemory')
+                  "
+                  :src="upArrow"
+                />
+                <img v-else :src="downArrow" />
+              </span>
             </td>
           </tr>
           <tr>
@@ -266,6 +344,13 @@ onMounted(() => {
             <td>Pin</td>
             <td v-for="(phone, index) in phoneList" :key="index">
               {{ phone.battery.battery || 'Không có' }}
+              <span class="arrow">
+                <img
+                  v-if="extractNumericValue(phone.battery.battery) === maxValue('battery.battery')"
+                  :src="upArrow"
+                />
+                <img v-else :src="downArrow" />
+              </span>
             </td>
           </tr>
           <tr>
@@ -300,6 +385,13 @@ onMounted(() => {
             <td>Trọng lượng</td>
             <td v-for="(phone, index) in phoneList" :key="index">
               {{ phone.design.weight || 'Không có' }}
+              <span class="arrow">
+                <img
+                  v-if="extractNumericValue(phone.design.weight) === maxValue('design.weight')"
+                  :src="upArrow"
+                />
+                <img v-else :src="downArrow" />
+              </span>
             </td>
           </tr>
           <tr>
@@ -469,6 +561,11 @@ onMounted(() => {
               font-weight: 600;
             }
             &:not(:first-child) {
+            }
+            .arrow {
+              position: relative;
+              top: 2px;
+              left: 4px;
             }
           }
           &:nth-child(odd) {
